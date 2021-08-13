@@ -1160,7 +1160,7 @@ a couple of mnemonic key presses.
 * init.el
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/init.el :noweb yes :main no
-;; -*-no-byte-compile: t; -*-
+;;; init.el -*- lexical-binding: t; -*-
 
 <<gc-tricks>>
 
