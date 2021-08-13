@@ -1,4 +1,4 @@
-* gc-tricks
+* gc-tricks test
 
 #+name: gc-tricks
 #+begin_src emacs-lisp
