@@ -2,7 +2,7 @@
 
 #+name: gc-tricks
 #+begin_src emacs-lisp
-;; increase garbage
+;; increase garbage  
 (setq gc-cons-threshold most-positive-fixnum)
 
 ;; set to 128mb after startup
