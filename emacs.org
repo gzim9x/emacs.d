@@ -1,4 +1,4 @@
-* gc-tricks test
+* gc-tricks
 
 #+name: gc-tricks
 #+begin_src emacs-lisp
@@ -1116,7 +1116,7 @@ a couple of mnemonic key presses.
 
 (use-package magit
   :defer 1
-  :bind ("C-x g" . magit-status))
+  :bind ("C-5" . magit-status))
 
 (provide 'module-magit)
 
