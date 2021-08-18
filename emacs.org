@@ -249,12 +249,10 @@ A GNU Emacs library to ensure environment variables inside Emacs look the same a
 ;;; module-exec-path-from-shell.el --- Config for exec-path-from-shell
 
 (use-package exec-path-from-shell
-  ;; :disabled
   :config
   (exec-path-from-shell-initialize))
 
 (provide 'module-exec-path-from-shell)
-
 ;;; module-exec-path-from-shell.el ends here
 #+end_src
 
@@ -763,15 +761,19 @@ EMMS is the Emacs Multi-Media System. It tries to be a clean and small applicati
 ;;; module-emms.el --- Config for Emms
 
 (use-package emms
-    :commands emms
-    :config
-    (require 'emms-setup)
-    (emms-all)
-    (setq emms-player-list '(emms-player-mpv))
-    (setq emms-playlist-buffer-name "*Emms player*"))
+  :commands emms
+  :bind (("M-8" . emms-stop)
+         ("M-7" . (lambda ()
+                    (interactive)
+                    (emms-play-directory my-emms-directory-music))))
+  :custom
+  (emms-player-list '(emms-player-mpv))
+  (emms-playlist-buffer-name "*Emms player*")
+  :config
+  (require 'emms-setup)
+  (emms-all))
 
 (provide 'module-emms)
-
 ;;; module-emms.el ends here
  #+end_src
 
@@ -1155,7 +1157,6 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 
 *** PHP
 
-#+name: module-php
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-php.el
 ;;; module-php.el --- Config for PHP
 
