@@ -2,21 +2,21 @@
 
 #+name: gc-tricks
 #+begin_src emacs-lisp
-;; increase garbage  
+;; increase garbage
 (setq gc-cons-threshold most-positive-fixnum)
 
 ;; set to 128mb after startup
 (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 134217728)))
 #+end_src
 
-* package 
+* package
 
 #+name: package
 #+begin_src emacs-lisp
 (require 'package)
 
 ;; To prevent initialising twice
-;; (setq package-enable-at-startup nil) 
+(setq package-enable-at-startup nil)
 
 ;; MELPA Stable (Milkypostman’s Emacs Lisp Package Archive)
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
@@ -41,10 +41,10 @@
 [[https://github.com/jwiegley/use-package][https://github.com/jwiegley/use-package]]
 
 The use-package macro allows to isolate package configuration in .emacs file in a way that is both
-performance-oriented and, well, tidy. 
+performance-oriented and, well, tidy.
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-use-package.el
-;;; module-use-package.el --- Config for use-package
+;;; module-use-package.el --- Config for use-package -*- lexical-binding: t -*-
 
 ;; install use-package if not exits
 (unless (package-installed-p 'use-package)
@@ -76,7 +76,6 @@ performance-oriented and, well, tidy.
 (setq use-package-minimum-reported-time 0)
 
 (provide 'module-use-package)
-
 ;;; module-use-package.el ends here
 #+end_src
 
@@ -167,6 +166,8 @@ but will work fine anywhere else.
 
 *** customize
 
+This stops emacs adding customised settings to init.el.
+
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-customize.el
 ;;; module-customize.el --- Config for customize
 
@@ -220,7 +221,7 @@ but will work fine anywhere else.
 (setq redisplay-dont-pause t)
 (setq ring-bell-function 'ignore)
 
-(menu-bar-mode -1)
+(setq menu-bar-mode t)
 
 (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
@@ -252,7 +253,7 @@ It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
 
 ;;; module-doom-modeline.el ends here
 #+end_src
-
+gl
 *** menu
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-menu.el
@@ -262,7 +263,7 @@ It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
 
 (provide 'module-menu)
 
-  ;;; module-menu.el ends here
+;;; module-menu.el ends here
 #+end_src
 
 *** exec-path-from-shell
@@ -301,16 +302,18 @@ A GNU Emacs library to ensure environment variables inside Emacs look the same a
 
 ;; on macOS, ls doesn't support the --dired option while on Linux it is supported.
 
-(when (string= system-type "darwin")       
+(when (string= system-type "darwin")
   (setq dired-use-ls-dired nil))
 
 (setq dired-recursive-deletes 'always)
 
 (setq dired-recursive-copies 'always)
 
-
 (global-set-key (kbd "M-SPC") 'cycle-spacing)
+
 (global-set-key (kbd "M-/") 'hippie-expand)
+
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 
 ;; Winner Mode is a global minor mode.
@@ -328,8 +331,17 @@ A GNU Emacs library to ensure environment variables inside Emacs look the same a
 
 (desktop-save-mode 1)
 
-(provide 'module-settings)
+;; Kill process buffer without confirmation
+(setq kill-buffer-query-functions nil)
 
+;; auto-revert-mode
+(add-hook 'prog-mode-hook 'auto-revert-mode)
+(add-hook 'text-mode-hook 'auto-revert-mode)
+
+;; I never want whitespace at the end of lines. Remove it on save.
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+(provide 'module-settings)
 ;;; module-settings.el ends here
 #+end_src
 
@@ -357,7 +369,9 @@ This package is a direct descendant of ‘org-bullets’, with most of the code 
 #+name: org-superstar
 #+begin_src emacs-lisp
 (use-package org-superstar
-  :hook (org-mode . org-superstar-mode))
+  :hook (org-mode . org-superstar-mode)
+  :custom
+  (org-superstar-headline-bullets-list  '("◉" "▸")))
 #+end_src
 
 **** ob-async
@@ -379,7 +393,7 @@ ob-async enables asynchronous execution of org-babel src blocks.
 **** org
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-org.el :noweb yes
-;;; module-org.el --- Config for org
+;;; module-org.el --- Config for org -*- lexical-binding: t -*-
 
 (defun org-concat-entries (&rest entries)
   (interactive)
@@ -400,6 +414,7 @@ ob-async enables asynchronous execution of org-babel src blocks.
 
 (use-package org
   :mode ("\\.org\\'" . org-mode)
+
   :bind (("C-1" . save-buffer)
          :map org-mode-map
          ("C-2" . org-ctrl-c-ctrl-c)
@@ -408,6 +423,7 @@ ob-async enables asynchronous execution of org-babel src blocks.
          ("M-]" . g7r-save-code-block)
          ("M-[" . g7r-get-code-block))
   ;; :hook ((org-babel-after-execute . org-redisplay-inline-images)) ;; TODO need rewrite
+
   :custom
   (org-startup-indented t)
   (org-startup-folded 'content)
@@ -416,17 +432,37 @@ ob-async enables asynchronous execution of org-babel src blocks.
   (org-src-tab-acts-natively t)
   (org-hide-emphasis-markers t)
   (org-src-window-setup 'current-window)
+  (org-hide-emphasis-markers nil)
   (org-todo-keywords '((sequence "TODO(t)" "STARTED(s!)" "DONE(d!/!)" "WAITING(w!/!)" "CANCELLED(c!/!)")))
-  (org-todo-keyword-faces '(("TODO" . (:foreground "DeepPink2" :weight bold :height 100))
-           		    ("STARTED" . (:foreground "goldenrod1" :weight bold :height 100))
-           		    ("DONE" . (:foreground "snow4" :weight bold :height 100))
-           		    ("WAITING" . (:foreground "pink1" :weight bold :height 100))
-           		    ("CANCELLED" . (:foreground "gray38" :weight bold :height 100))))
-  (org-log-states-order-reversed nil) ; state changes will be logged in chronological order, from top to bottom
+  (org-todo-keyword-faces '(("TODO"      . (:foreground "DeepPink2"
+                                            :weight bold
+                                            :height 100))
+           		    ("STARTED"   . (:foreground "goldenrod1"
+                                            :weight bold
+                                            :height 100))
+           		    ("DONE"      . (:foreground "snow4"
+                                            :weight bold
+                                            :height 100))
+           		    ("WAITING"   . (:foreground "pink1"
+                                            :weight bold
+                                            :height 100))
+           		    ("CANCELLED" . (:foreground "gray38"
+                                            :weight bold
+                                            :height 100))))
+
+  ;; state changes will be logged in chronological order, from top to bottom
+  (org-log-states-order-reversed nil)
 
   ;; Don't ask to eval code in SRC blocks
   (org-confirm-babel-evaluate nil)
+
+  (org-hierarchical-todo-statistics nil)
+
   :custom-face
+  (org-property-value ((t (:foreground "LightPink2"
+                           :weight normal
+                           :family ,(aref fonts 5)))))
+
   (org-level-1 ((t (:inherit 'outline-1
                     :height 180
                     :family ,(aref fonts 1)
@@ -446,6 +482,21 @@ ob-async enables asynchronous execution of org-babel src blocks.
                     :height 160
                     :family ,(aref fonts 1)
                     :weight bold))))
+
+  (org-level-5 ((t (:inherit 'outline-5
+                    :height 160
+                    :family ,(aref fonts 1)
+                    :weight bold))))
+
+  (org-level-6 ((t (:inherit 'outline-6
+                    :height 160
+                    :family ,(aref fonts 1)
+                    :weight bold))))
+
+  (org-block-begin-line ((t (:inherit 'org-block
+                             :family ,(aref fonts 5)
+                             :foreground "DarkOrange3"
+                             :extend t))))
   :config
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((emacs-lisp . t)
@@ -570,7 +621,9 @@ Emacs-libvterm (vterm) is fully-fledged terminal emulator inside GNU Emacs based
 ;;; module-vterm.el --- Config for vterm
 
 (use-package vterm
-    :bind ("M-3" . vterm))
+  :bind ("M-3" . vterm)
+  :custom
+  (vterm-always-compile-module t))
 
 (provide 'module-vterm)
 
@@ -581,7 +634,8 @@ Emacs-libvterm (vterm) is fully-fledged terminal emulator inside GNU Emacs based
 
 [[https://github.com/joostkremers/writeroom-mode][https://github.com/joostkremers/writeroom-mode]]
 
-writeroom-mode is a minor mode for Emacs that implements a distraction-free writing mode similar to the famous Writeroom editor for OS X. writeroom-mode is meant for GNU Emacs 24, lower versions are not actively supported.
+writeroom-mode is a minor mode for Emacs that implements a distraction-free writing mode similar to the
+famous Writeroom editor for OS X. writeroom-mode is meant for GNU Emacs 24, lower versions are not actively supported.
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-writeroom.el
 ;;; module-writeroom.el --- Config for Writeroom
@@ -605,7 +659,7 @@ Windmove is a library built into GnuEmacs starting with version 21. It lets you 
 (use-package windmove
   :ensure nil
   :defer 1
-  :custom 
+  :custom
   (windmove-wrap-around t)
   :config
   ;; use shift + arrow keys to switch between visible buffers
@@ -647,7 +701,7 @@ This package allows to translate the strings using Google Translate service dire
 
 [[https://github.com/justbur/emacs-which-key][https://github.com/justbur/emacs-which-key]]
 
-which-key is a minor mode for Emacs that displays the key bindings following your currently entered incomplete command (a prefix) in a popup. 
+which-key is a minor mode for Emacs that displays the key bindings following your currently entered incomplete command (a prefix) in a popup.
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-which-key.el
 ;;; module-which-key.el --- Config for which-key
@@ -704,23 +758,6 @@ YASnippet is a template system for Emacs. It allows you to type an abbreviation 
 ;;; module-yasnippet.el ends here
 #+end_src
 
-*** Redmine
-
-https://github.com/gongo/org-redmine
-
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-org-redmine.el
-;;; module-org-redmine.el --- Config for org-redmine
-
-;; (use-package org-redmine
-;;     :ensure nil ; do not download by use-package
-;;     :init
-;;     (add-to-list 'load-path "~/.emacs.d/org-redmine/"))
-
-(provide 'module-org-redmine)
-
-;;; module-org-redmine.el ends here
-#+end_src
-
 *** ESUP - Emacs Start Up Profiler
 
 https://github.com/jschaf/esup
@@ -741,7 +778,7 @@ Benchmark Emacs Startup time without ever leaving your Emacs.
 ;;; module-esup.el ends here
 #+end_src
 
-*** Emms - Emacs Multi-Media System  
+*** Emms - Emacs Multi-Media System
 
 https://www.emacswiki.org/emacs/EMMS
 
@@ -774,7 +811,8 @@ EMMS is the Emacs Multi-Media System. It tries to be a clean and small applicati
 ;; in the (guessed?) based on the OS by calling the following function:
 ;; M-x all-the-icons-install-fonts
 
-(use-package all-the-icons)
+(use-package all-the-icons
+  :defer 1)
 
 (provide 'module-all-the-icons)
 
@@ -783,29 +821,52 @@ EMMS is the Emacs Multi-Media System. It tries to be a clean and small applicati
 
 *** ivy
 
+https://github.com/abo-abo/swiper
+
+Flexible, simple tools for minibuffer completion in Emacs.
+Ivy is a generic completion mechanism for Emacs. While it operates
+similarly to other completion schemes such as icomplete-mode, Ivy
+aims to be more efficient, smaller, simpler, and smoother to use
+yet highly customizable.
+
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-ivy.el
-;;; module-ivy.el --- Config for ivy
+;;; module-ivy.el --- Config for Ivy/swiper/councel -*- lexical-binding: t -*-
 
 (use-package ivy
   :hook (after-init . ivy-mode)
+
   :bind (("C-x b" . ivy-switch-buffer)
          :map ivy-minibuffer-map
-         ("<up>" . ivy-previous-history-element)
-         ("<down>" . ivy-next-history-element)
-         ("<right>" . ivy-next-line)
-         ("<left>" . ivy-previous-line)
+         ("<up>"     . ivy-previous-history-element)
+         ("<down>"   . ivy-next-history-element)
+         ("<right>"  . ivy-next-line)
+         ("<left>"   . ivy-previous-line)
          ("<escape>" . minibuffer-keyboard-quit))
+
+  :custom
+  (ivy-use-virtual-buffers t)
+  (enable-recursive-minibuffers t)
+
+  ;; By default ivy starts filters with ^.
+  ;; I don't normally want that and can easily type it manually when I do.
+  (ivy-initial-inputs-alist nil)
+
   :config
+  ;; Counsel, a collection of Ivy-enhanced versions of common Emacs commands.
   (use-package counsel
     :bind ("M-y" . counsel-yank-pop))
+
+  ;; Swiper, an Ivy-enhanced alternative to Isearch.
   (use-package swiper
-    :bind (("C-s" . swiper-isearch)))
+    :bind ("C-5" . swiper-isearch)
+    :custom
+    (search-default-mode #'char-fold-to-regexp))
+
   (use-package all-the-icons-ivy
-    :init (add-hook 'after-init-hook 'all-the-icons-ivy-setup)))
+    :hook (after-init . all-the-icons-ivy-setup)))
 
 (provide 'module-ivy)
-
- ;;; module-ivy.el ends here
+;;; module-ivy.el ends here
 #+end_src
 
 *** company
@@ -870,6 +931,39 @@ and display completion candidates.
 ;;; module-security.el ends here
 #+end_src
 
+*** smartparens
+
+https://github.com/Fuco1/smartparens
+
+Smartparens is a minor mode for dealing with pairs in Emacs.
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-smartparens.el
+;;; module-smartparens.el --- Config for smartparens
+
+(use-package smartparens
+  :hook (prog-mode . smartparens-mode))
+
+(provide 'module-smartparens)
+;;; module-smartparens.el ends here
+#+end_src
+
+*** Redmine
+
+https://github.com/gongo/org-redmine
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-org-redmine.el
+;;; module-org-redmine.el --- Config for org-redmine
+
+;; (use-package org-redmine
+;;     :ensure nil ; do not download by use-package
+;;     :init
+;;     (add-to-list 'load-path "~/.emacs.d/org-redmine/"))
+
+(provide 'module-org-redmine)
+
+;;; module-org-redmine.el ends here
+#+end_src
+
 *** dash-at-point
 
 https://github.com/stanaka/dash-at-point
@@ -887,6 +981,8 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 ;;; module-dash-at-point.el ends here
 #+end_src
 
+
+
 ** Block 4 - languages
 *** Lisp
 
@@ -897,7 +993,7 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
   :bind ("M-)" . slime-close-all-parens-in-sexp)
   :init
   (setq inferior-lisp-program "/usr/local/bin/sbcl --noinform")
-  :config 
+  :config
   (load (expand-file-name "~/quicklisp/slime-helper.el")))
 
 (provide 'module-lisp)
@@ -938,20 +1034,19 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-clojure.el
 ;;; module-clojure.el --- Config for clojure
 
-;; (use-package better-defaults)
-
-(use-package flycheck-clj-kondo
-    :config
-    (add-hook 'after-init-hook #'global-flycheck-mode))
-
 (use-package clojure-mode
-             :config
-             (require 'flycheck-clj-kondo))
+  :mode (("\\.clj\\'"  . clojure-mode)
+         ("\\.edn\\'"  . clojure-mode)
+         ("\\.cljc\\'" . clojurescript-mode)
+         ("\\.cljs\\'" . clojurescript-mode))
 
-(use-package cider
-    :pin melpa-stable)
-
-(use-package clj-refactor)
+  :config
+  (use-package flycheck-clj-kondo)
+  (use-package clj-refactor)
+  (use-package clojure-snippets)
+  (use-package clojure-essential-ref)
+  (use-package cider
+    :pin melpa-stable))
 
 ;; (defun my-clojure-hook ()
 ;; "Enable some minor modes to enhance Clojure development."
@@ -968,9 +1063,6 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 ;;       '(setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
 ;;   (add-hook 'after-init-hook #'global-flycheck-mode))
 
-(use-package clojure-snippets)
-
-(use-package clojure-essential-ref)
 
 ;; (use-package ivy-clojuredocs
 ;;              :bind (:map clojure-mode-map
@@ -1073,7 +1165,7 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 
 ;;; module-raku.el ends here
 #+end_src
- 
+
 *** Yaml
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-yaml.el
@@ -1101,7 +1193,7 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 ;;; module-php.el ends here
 #+end_src
 
-** Block 5 - magit 
+** Block 5 - magit
 *** magit
 
 https://magit.vc/
@@ -1112,7 +1204,7 @@ letting you perform trivial as well as elaborate version control tasks with just
 a couple of mnemonic key presses.
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-magit.el
-;;; module-magit.el --- Config for magit
+;;; module-magit.el --- Config for magitc
 
 (use-package magit
   :defer 1
@@ -1126,12 +1218,16 @@ a couple of mnemonic key presses.
 ** Block 6 - syntax checking
 *** flycheck
 
-#+begin_src emacs-lisp
-(use-package flycheck
-    :hook (js-mode . flycheck-mode))
+#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-flycheck.el
+;;; module-flycheck.el -- Config for flycheck
 
-(use-package flycheck-pos-tip
-    :after flycheck)
+(use-package flycheck
+  :hook (after-init . global-flycheck-mode)
+  :config
+  (use-package flycheck-pos-tip))
+
+(provide 'module-flycheck)
+;;; module-flycheck.el ends here
 #+end_src
 
 ** Block 7 - functions
@@ -1199,21 +1295,23 @@ a couple of mnemonic key presses.
 (require 'module-which-key)
 (require 'module-crux)
 (require 'module-yasnippet)
-(require 'module-org-redmine)
 (require 'module-esup)
 (require 'module-emms)
 (require 'module-all-the-icons)
 (require 'module-ivy)
 (require 'module-company)
 (require 'module-security)
+(require 'module-smartparens)
+(require 'module-org-redmine)
 (require 'module-dash-at-point)
+
 
 ;; Block 4 - languages
 
 (require 'module-lisp)
 (require 'module-javascript)
+(require 'module-clojure)
 ;; (require 'module-scss)
-;; (require 'module-clojure)
 ;; (require 'module-dart)
 ;; (require 'module-prolog)
 ;; (require 'module-raku)
@@ -1228,6 +1326,7 @@ a couple of mnemonic key presses.
 
 ;; Block 6 - syntax checking
 
+(require 'module-flycheck)
 
 ;; Block 7 - functions
 
@@ -1235,4 +1334,3 @@ a couple of mnemonic key presses.
 <<private-functions>>
 
 #+end_src
-
