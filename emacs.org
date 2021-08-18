@@ -18,15 +18,13 @@
 ;; To prevent initialising twice
 (setq package-enable-at-startup nil)
 
-;; MELPA Stable (Milkypostman’s Emacs Lisp Package Archive)
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-
-;; GNU Emacs Lisp Package Archive
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
-
-;; Org mode
-(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/"))
+(setq package-archives '(;; MELPA Stable (Milkypostman’s Emacs Lisp Package Archive)
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
+                         ;; GNU Emacs Lisp Package Archive
+                         ("gnu" . "http://elpa.gnu.org/packages/")
+                         ;; Org mode
+                         ("org" . "https://orgmode.org/elpa/")))
 
 ;; Make the packages available to the current session.
 (package-initialize)
@@ -91,23 +89,19 @@ but will work fine anywhere else.
 ;;; module-theme.el --- Config for theme
 
 (use-package doom-themes
-    :config
-    ;; Global settings (defaults)
-    (setq doom-themes-enable-bold nil) ; if nil, bold is universally disabled
-    (setq doom-themes-enable-italic nil) ; if nil, italics is universally disabled
-    (load-theme 'doom-one t)
-    ;; Enable flashing mode-line on errors
-    (doom-themes-visual-bell-config)
-    ;; Enable custom neotree theme (all-the-icons must be installed!)
-    (doom-themes-neotree-config)
-    ;; or for treemacs users
-    (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
-    (doom-themes-treemacs-config)
-    ;; Corrects (and improves) org-mode's native fontification.
-    (doom-themes-org-config))
+  :custom
+  (doom-themes-enable-bold nil) ; if nil, bold is universally disabled
+  (doom-themes-enable-italic nil) ; if nil, italics is universally disabled
+  (doom-themes-treemacs-theme "doom-colors")
+  :config
+  (load-theme 'doom-one t)
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
 
 (provide 'module-theme)
-
 ;;; module-theme.el ends here
 #+end_src
 
@@ -185,52 +179,32 @@ This stops emacs adding customised settings to init.el.
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-ui-settings.el
 ;;; module-ui-settings.el --- Config for UI-settings
 
-;; Skip startup screen
-(setq inhibit-startup-screen t)
+(add-hook 'after-init-hook
+          (lambda ()
+            ;; Skip startup screen
+            (setq inhibit-startup-screen t)
 
-;; Start with a blank canvas
-(setq initial-scratch-message "")
+            ;; Start with a blank canvas
+            (setq initial-scratch-message "")
 
-;; Disable horizontal scrollbar
-(horizontal-scroll-bar-mode -1)
+            ;; Disable horizontal scrollbar
+            (horizontal-scroll-bar-mode -1)
 
-;; Disable toolbar vertical scrollbar
-(scroll-bar-mode -1)
+            ;; Disable toolbar vertical scrollbar
+            (scroll-bar-mode -1)
 
-;; Disable toolbar
-(tool-bar-mode -1)
+            ;; Disable toolbar
+            (tool-bar-mode -1)
 
-;; Displays column number in the mode line
-(setq column-number-mode t)
+            ;; Displays column number in the mode line
+            (setq column-number-mode t)
 
-;; Disable cursor blink
-(blink-cursor-mode -1)
+            ;; Disable cursor blink
+            (blink-cursor-mode -1)
 
-;; (add-to-list 'default-frame-alist
-;;              '(font . "JetBrains Mono-12"))
+            (setq use-dialog-box nil)
 
-;; (setq frame-title-format
-;;       '(:eval (if (buffer-file-name)
-;;                    (abbreviate-file-name (buffer-file-name))
-;;                    "%b")))
-
-(tooltip-mode -1)
-
-(setq use-dialog-box nil)
-
-(setq redisplay-dont-pause t)
-(setq ring-bell-function 'ignore)
-
-(setq menu-bar-mode t)
-
-(when (fboundp 'horizontal-scroll-bar-mode)
-    (horizontal-scroll-bar-mode -1))
-
-(when (fboundp 'scroll-bar-mode)
-    (scroll-bar-mode -1))
-
-(when (fboundp 'tool-bar-mode)
-    (tool-bar-mode -1))
+            (setq menu-bar-mode t)))
 
 (provide 'module-ui-settings)
 ;;; module-ui-settings.el ends here
@@ -591,24 +565,21 @@ This is a simple package to restart Emacs for within Emacs.
 ;;; module-restart-emacs.el ends here
 #+end_src
 
-*** NeoTree
+*** treemacs
 
-https://github.com/jaypei/emacs-neotree
+https://github.com/Alexander-Miller/treemacs
 
-A Emacs tree plugin like NerdTree for Vim.
+Treemacs - a tree layout file explorer for Emacs
 
-#+name: neotree
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-neotree.el
-;;; module-neotree.el --- Config for neotree
+#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-treemacs.el
+;;; module-treemacs.el --- Config for treemacs
 
-(use-package neotree
-    :init
-    (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-    :bind ("M-1" . neotree-toggle))
+(use-package treemacs
+  :bind ("M-1" . treemacs))
 
-(provide 'module-neotree)
+(provide 'module-treemacs)
 
-;;; module-neotree.el ends here
+;;; module-treemacs.el ends here
 #+end_src
 
 *** vterm
@@ -1250,11 +1221,11 @@ a couple of mnemonic key presses.
   (rename-buffer name))
 #+end_src
 
-*** private functions
+** Block 8 - private info
 
-#+name: private-functions
+#+name: private
 #+begin_src emacs-lisp
-(load-file "~/.emacs.d/private-functions.el")
+(load-file "~/.emacs.d/private.el")
 #+end_src
 
 * init.el
@@ -1291,7 +1262,7 @@ a couple of mnemonic key presses.
 (require 'module-paren)
 (require 'module-rainbow-delimiters)
 (require 'module-restart-emacs)
-(require 'module-neotree)
+(require 'module-treemacs)
 (require 'module-vterm)
 (require 'module-writeroom)
 (require 'module-windmove)
@@ -1335,6 +1306,9 @@ a couple of mnemonic key presses.
 ;; Block 7 - functions
 
 <<functions>>
-<<private-functions>>
+
+;; Block 8 - private info
+
+<<private>>
 
 #+end_src
