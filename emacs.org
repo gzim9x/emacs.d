@@ -641,7 +641,11 @@ famous Writeroom editor for OS X. writeroom-mode is meant for GNU Emacs 24, lowe
 ;;; module-writeroom.el --- Config for Writeroom
 
 (use-package writeroom-mode
-    :bind ("M-2" . writeroom-mode))
+  :bind (("M-2" . writeroom-mode)
+         :map writeroom-mode-map
+         ("C-," . writeroom-decrease-width)
+         ("C-." . writeroom-increase-width)
+         ("C-M-=" . writeroom-adjust-width)))
 
 (provide 'module-writeroom)
 ;;; module-writeroom.el ends here
