@@ -132,7 +132,7 @@ but will work fine anywhere else.
 
 ;; Fonts
 (setq fonts ["JetBrains Mono"
-			   "Monitorica"
+             "Monitorica"
              "Aldrich [RUS by Daymarius]"
              "Gardens CM"
              "Jet Set"
@@ -181,6 +181,9 @@ This stops emacs adding customised settings to init.el.
 
 (add-hook 'after-init-hook
           (lambda ()
+            ;; Set default font
+            (set-frame-font "JetBrains Mono 13" nil t)
+
             ;; Skip startup screen
             (setq inhibit-startup-screen t)
 
@@ -240,29 +243,15 @@ gl
 ;;; module-menu.el ends here
 #+end_src
 
-*** exec-path-from-shell
-
-[[https://github.com/purcell/exec-path-from-shell][https://github.com/purcell/exec-path-from-shell]]
-A GNU Emacs library to ensure environment variables inside Emacs look the same as in the user's shell.
-
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-exec-path-from-shell.el
-;;; module-exec-path-from-shell.el --- Config for exec-path-from-shell
-
-(use-package exec-path-from-shell
-  :config
-  (exec-path-from-shell-initialize))
-
-(provide 'module-exec-path-from-shell)
-;;; module-exec-path-from-shell.el ends here
-#+end_src
-
 *** settings
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-settings.el
 ;;; module-settings.el --- Config for settings
 
-(setq-default indent-tabs-mode nil)
+(setenv "PATH" my-env-path)
+(setenv "MANPATH" my-env-manpath)
 
+(setq-default indent-tabs-mode nil)
 
 (setq make-backup-files nil)
 
@@ -446,26 +435,27 @@ ob-async enables asynchronous execution of org-babel src blocks.
                     :weight bold))))
 
   (org-level-3 ((t (:inherit 'outline-3
-                    :height 160
+                    :height 170
                     :family ,(aref fonts 1)
                     :weight bold))))
 
   (org-level-4 ((t (:inherit 'outline-4
-                    :height 160
+                    :height 170
                     :family ,(aref fonts 1)
                     :weight bold))))
 
   (org-level-5 ((t (:inherit 'outline-5
-                    :height 160
+                    :height 170
                     :family ,(aref fonts 1)
                     :weight bold))))
 
   (org-level-6 ((t (:inherit 'outline-6
-                    :height 160
+                    :height 170
                     :family ,(aref fonts 1)
                     :weight bold))))
 
   (org-block-begin-line ((t (:inherit 'org-block
+                             :height 140
                              :family ,(aref fonts 5)
                              :foreground "DarkOrange3"
                              :extend t))))
@@ -1247,7 +1237,9 @@ a couple of mnemonic key presses.
 (require 'module-ui-settings)
 (require 'module-doom-modeline)
 (require 'module-menu)
-(require 'module-exec-path-from-shell)
+
+<<private>>
+
 (require 'module-settings)
 (require 'module-registers)
 
@@ -1307,9 +1299,5 @@ a couple of mnemonic key presses.
 ;; Block 7 - functions
 
 <<functions>>
-
-;; Block 8 - private info
-
-<<private>>
 
 #+end_src
