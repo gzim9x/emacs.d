@@ -827,24 +827,24 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 
 #+name: javascript
 #+begin_src emacs-lisp
-;; searches the current files parent directories for the node_modules/.bin/ directory and adds it to the buffer local exec-path
-(use-package add-node-modules-path
-  :hook js-mode
-  :pin melpa-stable)
-
-(use-package js2-mode
-  :after (add-node-modules-path)
-  :mode "\\.js\\'"
-  :custom
-  (js2-strict-missing-semi-warning nil))
-
+;; A major mode for editing JSX files
+;; This mode derives from js2-mode, extending its parser to support
+;; JSX syntax according to the official spec. This means you get all
+;; of the js2 features plus proper syntax checking and highlighting
+;; of JSX code blocks.
 (use-package rjsx-mode
-    :mode "\\.js\\'")
+  :mode ("\\.js\\'" "\\.jsx\\'")
 
-(use-package js-doc
-  :bind (:map js2-mode-map
-              ("C-c i" . js-doc-insert-function-doc)
-              ("@" . js-doc-insert-tag)))
+  :custom
+  (js2-strict-missing-semi-warning nil)
+
+  :config
+  ;; This provides add-node-modules-path, which searches the current
+  ;; files parent directories for the node_modules/.bin/ directory
+  ;; and adds it to the buffer local exec-path.
+  ;; This allows Emacs to find project based installs of e.g. eslint.
+  (use-package add-node-modules-path
+    :hook rjsx-mode))
 #+end_src
 
 *** Clojure
@@ -855,15 +855,23 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
   :mode (("\\.clj\\'"  . clojure-mode)
          ("\\.edn\\'"  . clojure-mode)
          ("\\.cljc\\'" . clojurescript-mode)
-         ("\\.cljs\\'" . clojurescript-mode))
+         ("\\.cljs\\'" . clojurescript-mode)))
 
-  :config
-  (use-package flycheck-clj-kondo)
-  (use-package clj-refactor)
-  (use-package clojure-snippets)
-  (use-package clojure-essential-ref)
-  (use-package cider
-    :pin melpa-stable))
+(use-package flycheck-clj-kondo
+  :hook (clojure-mode clojurescript-mode))
+
+(use-package clj-refactor
+  :hook (clojure-mode clojurescript-mode))
+
+(use-package clojure-snippets
+  :hook (clojure-mode clojurescript-mode))
+
+(use-package clojure-essential-ref
+  :hook (clojure-mode clojurescript-mode))
+
+(use-package cider
+  :hook (clojure-mode clojurescript-mode)
+  :pin melpa-stable)
 
 ;; (defun my-clojure-hook ()
 ;; "Enable some minor modes to enhance Clojure development."
@@ -964,12 +972,16 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 (use-package raku-mode)
 #+end_src
 
-*** Yaml
+*** YAML
+
+https://github.com/yoshiki/yaml-mode
+
+Simple major mode to edit YAML file for emacs
 
 #+name: yaml
 #+begin_src emacs-lisp
 (use-package yaml-mode
-  :mode "\\.yml\\'")
+  :mode ("\\.yml\\'" . yaml-mode))
 #+end_src
 
 *** PHP
