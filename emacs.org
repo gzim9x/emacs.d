@@ -49,6 +49,12 @@ performance-oriented and, well, tidy.
 
 (eval-when-compile
   (require 'use-package))
+
+;; Package 'bind-key' provides a macro by the same name (along with
+;; 'bind-key*' and 'unbind-key') which provides a much prettier API
+;; for manipulating keymaps than 'define-key' and 'global-set-key' do.
+;; It's also the same API that ':bind' and similar keywords in
+;; 'use-package' use.
 (require 'bind-key)
 
 ;; The :ensure keyword causes the package(s) to be installed automatically if not
@@ -235,11 +241,11 @@ It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
             (when (fboundp 'winner-mode)
               (winner-mode 1))
 
-            (global-set-key (kbd "M-SPC") 'cycle-spacing)
+            (bind-key "M-SPC" 'cycle-spacing)
 
-            (global-set-key (kbd "M-/") 'hippie-expand)
+            (bind-key "M-/" 'hippie-expand)
 
-            (global-set-key (kbd "C-x C-b") 'ibuffer)
+            (bind-key "C-x C-b" 'ibuffer)
 
             ;; "y" is shorter than "yes"
             (defalias 'yes-or-no-p 'y-or-n-p)
@@ -438,6 +444,12 @@ ob-async enables asynchronous execution of org-babel src blocks.
 
 #+name: org-agenda
 #+begin_src emacs-lisp
+
+(use-package ob-async
+  ;; :defer 2
+  ;; :commands (org-babel-execute ob-async-org-babel-execute-src-block)
+  :init
+  (defalias 'org-babel-execute-src-block:async 'ob-async-org-babel-execute-src-block))
 (use-package org-agenda
   :ensure nil
   :bind ("M-4" . org-agenda)
@@ -1007,8 +1019,6 @@ a couple of mnemonic key presses.
   (shell)
   (rename-buffer name))
 #+end_src
-
-
 * early-init.el
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/early-init.el :noweb yes
