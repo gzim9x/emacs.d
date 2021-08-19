@@ -219,11 +219,17 @@ It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
 (add-hook 'after-init-hook
           (lambda ()
 
+            ;; Don't use tabs for indentation. Use only spaces.
             (setq-default indent-tabs-mode nil)
 
+            ;; Don't make backup files
             (setq make-backup-files nil)
 
+            ;; Don't make autosave files
             (setq auto-save-default nil)
+
+            ;; Don't make lockfiles
+            (setq create-lockfiles nil)
 
             (setq auto-save-list-file-name nil)
 
@@ -444,12 +450,6 @@ ob-async enables asynchronous execution of org-babel src blocks.
 
 #+name: org-agenda
 #+begin_src emacs-lisp
-
-(use-package ob-async
-  ;; :defer 2
-  ;; :commands (org-babel-execute ob-async-org-babel-execute-src-block)
-  :init
-  (defalias 'org-babel-execute-src-block:async 'ob-async-org-babel-execute-src-block))
 (use-package org-agenda
   :ensure nil
   :bind ("M-4" . org-agenda)
@@ -729,18 +729,24 @@ and display completion candidates.
          (prog-mode . company-mode))
 
   :custom
+  ;; Make completions display twice as soon.
+  (company-idle-delay 0.15)
+
+  ;; Make completions display when you have only typed two character,
+  ;; instead of three.
+  (company-minimum-prefix-length 2)
+
+  ;; Always display the entire suggestion list onscreen, placing it
+  ;; above the cursor if necessary.
+  (company-tooltip-minimum company-tooltip-limit)
+
   (company-tooltip-limit 10)
   (company-tooltip-align-annotations t)
   (company-require-match 'never)
-  ;; (company-idle-delay 0.2)
-  ;; (company-minimum-prefix-length 2)
-  ;; (company-selection-wrap-around t)
-  ;; (company-echo-delay 0)
-  ;; (company-format-margin-function nil)
+
   (company-dabbrev-char-regexp "[[:word:]_:@.-]+")
   (company-dabbrev-downcase nil)
   (company-dabbrev-ignore-case nil)
-  ;; (company-require-match nil)
   (company-dabbrev-minimum-length 2)
 
   :config
@@ -1065,8 +1071,6 @@ a couple of mnemonic key presses.
 ;; Block 2 - orgmode
 
 <<org>>
-<<org-superstar>>
-<<ob-async>>
 <<org-agenda>>
 
 ;; Block 3 - other packages & preferences
