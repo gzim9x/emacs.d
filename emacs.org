@@ -810,6 +810,20 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
   :bind ("C-c d" . dash-at-point))
 #+end_src
 
+*** aggressive-indent
+
+https://github.com/Malabarba/aggressive-indent-mode
+
+aggressive-indent-mode is a minor mode that keeps your code always indented.
+It reindents after every change, making it more reliable than electric-indent-mode.
+
+#+name: aggressive-indent
+#+begin_src emacs-lisp
+(use-package aggressive-indent
+  :hook ((emacs-lisp-mode . aggressive-indent-mode)
+         (clojure-mode . aggressive-indent-mode)))
+#+end_src
+
 ** Block 4 - languages
 *** Lisp
 
@@ -848,50 +862,83 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 #+end_src
 
 *** Clojure
+**** flycheck-clj-kondo
+
+https://github.com/borkdude/flycheck-clj-kondo
+
+This package integrates clj-kondo with Emacs via flycheck.
+
+#+name: flycheck-clj-kondo
+#+begin_src emacs-lisp
+(use-package flycheck-clj-kondo
+  :defer t)
+#+end_src
+**** cider
+
+https://github.com/clojure-emacs/cider
+
+CIDER is the Clojure(Script) Interactive Development Environment that Rocks!
+
+CIDER extends Emacs with support for interactive programming in Clojure.
+The features are centered around cider-mode, an Emacs minor-mode that
+complements clojure-mode. While clojure-mode supports editing Clojure source
+files, cider-mode adds support for interacting with a running Clojure process
+for compilation, code completion, debugging, definition and documentation
+lookup, running tests and so on.
+
+#+name: cider
+#+begin_src emacs-lisp
+(use-package cider
+  :commands (cider-jack-in
+             cider-jack-in-clj
+             cider-jack-in-cljs
+             cider-jack-in-clj&cljs)
+  :custom
+
+  ;; The CIDER welcome message often obscures any error messages that
+  ;; the above code is supposed to be making visible. So, we need to
+  ;; turn off the welcome message.
+  (cider-repl-display-help-banner nil)
+
+  ;; Sometimes in the CIDER REPL, when Emacs is running slowly, you
+  ;; can manage to press TAB before the Company completions menu pops
+  ;; up. This triggers a 'completing-read', which is disorienting. So
+  ;; we reset TAB to its default functionality (i.e. indent only) in
+  ;; the CIDER REPL.
+  (cider-repl-tab-command 'indent-for-tab-command)
+
+  ;; Don't focus the cursor in the CIDER REPL once it starts. Since
+  ;; the REPL takes so long to start up, especially for large
+  ;; projects, you either have to wait for a minute without doing
+  ;; anything or be prepared for your cursor to suddenly shift buffers
+  ;; without warning sometime in the near future. This is annoying, so
+  ;; turn off the behavior. For a historical perspective see [1].
+  ;;
+  ;; [1]: https://github.com/clojure-emacs/cider/issues/1872
+  (cider-repl-pop-to-buffer-on-connect 'display-only)
+
+  :pin melpa-stable)
+#+end_src
+
+**** clojure-mode
+
+https://github.com/clojure-emacs/clojure-mode
+
+clojure-mode is an Emacs major mode that provides font-lock (syntax highlighting),
+indentation, navigation and refactoring support for the Clojure(Script) programming language.
 
 #+name: clojure
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb yes
+<<flycheck-clj-kondo>>
+
 (use-package clojure-mode
-  :mode (("\\.clj\\'"  . clojure-mode)
-         ("\\.edn\\'"  . clojure-mode)
-         ("\\.cljc\\'" . clojurescript-mode)
-         ("\\.cljs\\'" . clojurescript-mode)))
+  :mode (("\\.\\(clj\\|dtm\\|edn\\)\\'" . clojure-mode)
+         ("\\.cljc\\'" . clojurec-mode)
+         ("\\.cljs\\'" . clojurescript-mode))
+  :config
+  (require 'flycheck-clj-kondo))
 
-(use-package flycheck-clj-kondo
-  :hook (clojure-mode clojurescript-mode))
-
-(use-package clj-refactor
-  :hook (clojure-mode clojurescript-mode))
-
-(use-package clojure-snippets
-  :hook (clojure-mode clojurescript-mode))
-
-(use-package clojure-essential-ref
-  :hook (clojure-mode clojurescript-mode))
-
-(use-package cider
-  :hook (clojure-mode clojurescript-mode)
-  :pin melpa-stable)
-
-;; (defun my-clojure-hook ()
-;; "Enable some minor modes to enhance Clojure development."
-;;   (clj-refactor-mode)
-;;   (emidje-mode))
-;; (eval-after-load 'cider
-;;     #'emidje-enable-nrepl-middleware)
-;; (add-hook 'clojure-mode-hook #'my-clojure-hook)
-
-;; (use-package flycheck-clojure
-;;   :commands (flycheck-clojure-setup) ;; autoload
-;;   :config
-;;   (eval-after-load 'flycheck
-;;       '(setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
-;;   (add-hook 'after-init-hook #'global-flycheck-mode))
-
-
-;; (use-package ivy-clojuredocs
-;;              :bind (:map clojure-mode-map
-;;                          (("C-c d" . ivy-clojuredocs-at-point))))
+<<cider>>
 #+end_src
 
 *** SCSS
@@ -1108,6 +1155,7 @@ a couple of mnemonic key presses.
 <<smartparens>>
 <<org-redmine>>
 <<dash-at-point>>
+<<aggressive-indent>>
 
 
 ;; Block 4 - languages
