@@ -1,12 +1,16 @@
-* gc-tricks
+* speed-up
 
-#+name: gc-tricks
+#+name: speed-up
 #+begin_src emacs-lisp
-;; increase garbage
-(setq gc-cons-threshold most-positive-fixnum)
+(add-hook 'after-init-hook (lambda ()
+                             ;; recover garbage collector
+                             (setq gc-cons-threshold #x1000000))) ; 16Mb
 
-;; set to 128mb after startup
-(add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 134217728)))
+;; Increase how much is read from processes in a single chunk (default is 4kb)
+(setq read-process-output-max #x10000)  ; 64kb
+
+;; Don't ping things that look like domain names.
+(setq ffap-machine-p-known 'reject)
 #+end_src
 
 * package
@@ -14,9 +18,6 @@
 #+name: package
 #+begin_src emacs-lisp
 (require 'package)
-
-;; To prevent initialising twice
-(setq package-enable-at-startup nil)
 
 (setq package-archives '(;; MELPA Stable (Milkypostman’s Emacs Lisp Package Archive)
                          ("melpa-stable" . "https://stable.melpa.org/packages/")
@@ -28,8 +29,6 @@
 
 ;; Make the packages available to the current session.
 (package-initialize)
-
-(add-to-list 'load-path "~/.emacs.d/modules")
 #+end_src
 
 * modules
@@ -41,9 +40,8 @@
 The use-package macro allows to isolate package configuration in .emacs file in a way that is both
 performance-oriented and, well, tidy.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-use-package.el
-;;; module-use-package.el --- Config for use-package -*- lexical-binding: t -*-
-
+#+name: use-package
+#+begin_src emacs-lisp
 ;; install use-package if not exits
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -72,12 +70,9 @@ performance-oriented and, well, tidy.
 (setq use-package-compute-statistics t)
 
 (setq use-package-minimum-reported-time 0)
-
-(provide 'module-use-package)
-;;; module-use-package.el ends here
 #+end_src
 
-*** theme
+*** doom-themes
 
 https://github.com/hlissner/emacs-doom-themes
 
@@ -85,100 +80,76 @@ A theme megapack for GNU Emacs, inspired by community favorites.
 Special attention is given for Doom Emacs and solaire-mode support,
 but will work fine anywhere else.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-theme.el
-;;; module-theme.el --- Config for theme
-
+#+name: doom-themes
+#+begin_src emacs-lisp
 (use-package doom-themes
   :custom
   (doom-themes-enable-bold nil) ; if nil, bold is universally disabled
   (doom-themes-enable-italic nil) ; if nil, italics is universally disabled
   (doom-themes-treemacs-theme "doom-colors")
+
   :config
   (load-theme 'doom-one t)
+
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
-  (doom-themes-treemacs-config)
-  ;; Corrects (and improves) org-mode's native fontification.
-  (doom-themes-org-config))
 
-(provide 'module-theme)
-;;; module-theme.el ends here
+  ;; Foreground colors
+  (setq fg-colors ["wheat2"
+                   "white"
+                   "MediumOrchid2"
+                   "#5c6380"
+                   "wheat1"
+                   "DarkOliveGreen2"
+                   "PeachPuff2"
+                   "DarkSeaGreen2"
+                   "DarkSlateGray2"])
+
+  ;; Background colors
+  (setq bg-colors ["#222131"
+                   "grey12"
+                   "#21242e"
+                   "black"
+                   "#071020"
+                   "grey20"
+                   "#231c30"])
+
+  ;; Fonts
+  (setq fonts ["JetBrains Mono"
+               "Monitorica"
+               "Aldrich [RUS by Daymarius]"
+               "Gardens CM"
+               "Jet Set"
+               "arial curive"
+               "Hack"
+               "Azbuka04"
+               "Comic Helvetic"
+               "Oxygen"
+               "Product Sans(RUS BY LYAJKA)"
+               "Ropa Sans [RUS by Daymarius]"
+               "Trebuchet"
+               "Arial"
+               "Verdana"
+               "Tahoma"
+               "Monaco"
+               "PT Mono"]))
 #+end_src
-
-*** theme-settings
-
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-theme-settings.el
-;;; module-theme-settings.el --- Config for theme settings
-
-;; Foreground colors
-(setq fg-colors ["wheat2"
-                 "white"
-                 "MediumOrchid2"
-                 "#5c6380"
-                 "wheat1"
-                 "DarkOliveGreen2"
-                 "PeachPuff2"
-                 "DarkSeaGreen2"
-                 "DarkSlateGray2"])
-
-;; Background colors
-(setq bg-colors [ "#222131"
-                  "grey12"
-                  "#21242e"
-                  "black"
-                  "#071020"
-                  "grey20"
-                  "#231c30"])
-
-;; Fonts
-(setq fonts ["JetBrains Mono"
-             "Monitorica"
-             "Aldrich [RUS by Daymarius]"
-             "Gardens CM"
-             "Jet Set"
-             "arial curive"
-             "Hack"
-             "Azbuka04"
-             "Comic Helvetic"
-             "Oxygen"
-             "Product Sans(RUS BY LYAJKA)"
-             "Ropa Sans [RUS by Daymarius]"
-             "Trebuchet"
-             "Arial"
-             "Verdana"
-             "Tahoma"
-             "Monaco"
-             "PT Mono"])
-
-(provide 'module-theme-settings)
-
-;;; module-theme-settings.el ends here
-#+end_src
-
-#+RESULTS:
-: module-theme-settings
 
 *** customize
 
 This stops emacs adding customised settings to init.el.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-customize.el
-;;; module-customize.el --- Config for customize
-
+#+name: customize
+#+begin_src emacs-lisp
 (setq custom-file "~/.emacs.d/customize.el")
 (when (file-readable-p custom-file)
     (load custom-file))
-
-(provide 'module-customize)
-
-;;; module-customize.el ends here
 #+end_src
 
 *** ui-settings
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-ui-settings.el
-;;; module-ui-settings.el --- Config for UI-settings
-
+#+name: ui-settings
+#+begin_src emacs-lisp
 (add-hook 'after-init-hook
           (lambda ()
             ;; Set default font
@@ -193,12 +164,6 @@ This stops emacs adding customised settings to init.el.
             ;; Disable horizontal scrollbar
             (horizontal-scroll-bar-mode -1)
 
-            ;; Disable toolbar vertical scrollbar
-            (scroll-bar-mode -1)
-
-            ;; Disable toolbar
-            (tool-bar-mode -1)
-
             ;; Displays column number in the mode line
             (setq column-number-mode t)
 
@@ -207,10 +172,8 @@ This stops emacs adding customised settings to init.el.
 
             (setq use-dialog-box nil)
 
-            (setq menu-bar-mode t)))
-
-(provide 'module-ui-settings)
-;;; module-ui-settings.el ends here
+            ;; (setq menu-bar-mode t)
+            ))
 #+end_src
 
 *** doom-modeline
@@ -220,102 +183,88 @@ https://github.com/seagle0128/doom-modeline
 A fancy and fast mode-line inspired by minimalism design.
 It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
 
-#+begin_src emacs-lisp  :tangle ~/.emacs.d/modules/module-doom-modeline.el
-;;; module-doom-modeline.el --- Config for doom-modeline
-
+#+name: doom-modeline
+#+begin_src emacs-lisp
 (use-package doom-modeline
-    :hook (after-init . doom-modeline-mode))
-
-(provide 'module-doom-modeline)
-
-;;; module-doom-modeline.el ends here
+  :hook (after-init . doom-modeline-mode))
 #+end_src
-gl
+
 *** menu
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-menu.el
-;;; module-menu.el --- Config for menu
-
+#+name: menu
+#+begin_src emacs-lisp
 (load-file "~/.emacs.d/menu.el")
+#+end_src
 
-(provide 'module-menu)
+*** private
 
-;;; module-menu.el ends here
+#+name: private
+#+begin_src emacs-lisp
+(load-file "~/.emacs.d/private.el")
 #+end_src
 
 *** settings
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-settings.el
-;;; module-settings.el --- Config for settings
-
+#+name: settings
+#+begin_src emacs-lisp
 (setenv "PATH" my-env-path)
 (setenv "MANPATH" my-env-manpath)
 
-(setq-default indent-tabs-mode nil)
+(add-hook 'after-init-hook
+          (lambda ()
 
-(setq make-backup-files nil)
+            (setq-default indent-tabs-mode nil)
 
-(setq auto-save-default nil)
+            (setq make-backup-files nil)
 
-(setq auto-save-list-file-name nil)
+            (setq auto-save-default nil)
 
-;; Dired
+            (setq auto-save-list-file-name nil)
 
-;; on macOS, ls doesn't support the --dired option while on Linux it is supported.
-
-(when (string= system-type "darwin")
-  (setq dired-use-ls-dired nil))
-
-(setq dired-recursive-deletes 'always)
-
-(setq dired-recursive-copies 'always)
-
-(global-set-key (kbd "M-SPC") 'cycle-spacing)
-
-(global-set-key (kbd "M-/") 'hippie-expand)
-
-(global-set-key (kbd "C-x C-b") 'ibuffer)
+            ;; Dired
+            ;; on macOS, ls doesn't support the --dired option while on Linux it is supported.
+            (when (string= system-type "darwin")
+              (setq dired-use-ls-dired nil))
+            (setq dired-recursive-deletes 'always)
+            (setq dired-recursive-copies 'always)
 
 
-;; Winner Mode is a global minor mode.
-;; When activated, it allows you to “undo” (and “redo”) changes
-;; in the window configuration with the key commands ‘C-c left’ and ‘C-c right’.
+            ;; Winner Mode is a global minor mode.
+            ;; When activated, it allows you to “undo” (and “redo”) changes
+            ;; in the window configuration with the key commands ‘C-c left’ and ‘C-c right’.
+            (when (fboundp 'winner-mode)
+              (winner-mode 1))
 
-(when (fboundp 'winner-mode)
-    (winner-mode 1))
+            (global-set-key (kbd "M-SPC") 'cycle-spacing)
 
-;; y is shorter than yes.
-(defalias 'yes-or-no-p 'y-or-n-p)
+            (global-set-key (kbd "M-/") 'hippie-expand)
+
+            (global-set-key (kbd "C-x C-b") 'ibuffer)
+
+            ;; "y" is shorter than "yes"
+            (defalias 'yes-or-no-p 'y-or-n-p)
+
+            ;; auto-revert-mode
+            (add-hook 'prog-mode-hook 'auto-revert-mode)
+            (add-hook 'text-mode-hook 'auto-revert-mode)
+
+            ;; I never want whitespace at the end of lines. Remove it on save.
+            (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+            ;; Kill process buffer without confirmation
+            (setq kill-buffer-query-functions nil)))
 
 ;; disable eldoc globally
 (global-eldoc-mode -1)
 
 (desktop-save-mode 1)
-
-;; Kill process buffer without confirmation
-(setq kill-buffer-query-functions nil)
-
-;; auto-revert-mode
-(add-hook 'prog-mode-hook 'auto-revert-mode)
-(add-hook 'text-mode-hook 'auto-revert-mode)
-
-;; I never want whitespace at the end of lines. Remove it on save.
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-(provide 'module-settings)
-;;; module-settings.el ends here
 #+end_src
 
 *** registers
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-registers.el
-;;; module-registers.el --- Config for registers
-
+#+name: registers
+#+begin_src emacs-lisp
 (load-file "~/.emacs.d/registers.el")
-
-(provide 'module-registers)
-
-;;; module-registers.el ends here
 #+end_src
 
 ** Block 2 - org
@@ -344,18 +293,16 @@ ob-async enables asynchronous execution of org-babel src blocks.
 #+name: ob-async
 #+begin_src emacs-lisp
 (use-package ob-async
-    :disabled
-    :defer 2
-    :commands (org-babel-execute ob-async-org-babel-execute-src-block)
-    :init
-    (defalias 'org-babel-execute-src-block:async 'ob-async-org-babel-execute-src-block))
+  ;; :defer 2
+  ;; :commands (org-babel-execute ob-async-org-babel-execute-src-block)
+  :init
+  (defalias 'org-babel-execute-src-block:async 'ob-async-org-babel-execute-src-block))
 #+end_src
 
 **** org
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-org.el :noweb yes
-;;; module-org.el --- Config for org -*- lexical-binding: t -*-
-
+#+name: org
+#+begin_src emacs-lisp :noweb yes
 (defun org-concat-entries (&rest entries)
   (interactive)
   (mapconcat (lambda (x) (org-entry-get nil x t)) entries ""))
@@ -374,6 +321,8 @@ ob-async enables asynchronous execution of org-babel src blocks.
      __no)))
 
 (use-package org
+  :ensure nil
+
   :mode ("\\.org\\'" . org-mode)
 
   :bind (("C-1" . save-buffer)
@@ -390,6 +339,7 @@ ob-async enables asynchronous execution of org-babel src blocks.
   (org-startup-folded 'content)
   (org-src-preserve-indentation nil)
   (org-edit-src-content-indentation 0)
+  (org-src-fontify-natively t)
   (org-src-tab-acts-natively t)
   (org-hide-emphasis-markers t)
   (org-src-window-setup 'current-window)
@@ -454,12 +404,18 @@ ob-async enables asynchronous execution of org-babel src blocks.
                     :family ,(aref fonts 1)
                     :weight bold))))
 
+  (org-meta-line ((t (:height 140
+                      :family ,(aref fonts 5)
+                      :foreground "LightSalmon2"))))
+
   (org-block-begin-line ((t (:inherit 'org-block
                              :height 140
                              :family ,(aref fonts 5)
-                             :foreground "DarkOrange3"
+                             :foreground "DarkOrange4"
                              :extend t))))
   :config
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config)
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((emacs-lisp . t)
                                  (lisp . t)
@@ -473,49 +429,37 @@ ob-async enables asynchronous execution of org-babel src blocks.
       				 ;; (raku . t)
       				 ;; (dart . t)
       				 ;; (php . t)
-                                 (plantuml . t))))
-
-<<org-superstar>>
-
-<<ob-async>>
-
-(provide 'module-org)
-
-;;; module-org.el ends here
+                                 (plantuml . t)))
+  <<org-superstar>>
+  <<ob-async>>)
 #+end_src
 
-**** agenda
+**** org-agenda
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-agenda.el
-;;; module-agenda.el --- Config for agenda
-
+#+name: org-agenda
+#+begin_src emacs-lisp
 (use-package org-agenda
   :ensure nil
   :bind ("M-4" . org-agenda)
   :config
   (load-file "~/.emacs.d/agenda-files.el"))
-
-(provide 'module-agenda)
-
-;;; module-agenda.el ends here
 #+end_src
 
 ** Block 3 - other packages & preferences
 *** paren
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-paren.el
-;;; module-paren.el --- Config for paren
+https://www.emacswiki.org/emacs/ShowParenMode
 
+show-paren-mode allows one to see matching pairs of parentheses
+
+#+name: paren
+#+begin_src emacs-lisp
 (use-package paren
     :ensure nil
     :hook (prog-mode . show-paren-mode)
     :custom
     (show-paren-delay 0)
     (show-paren-style 'parenthesis))
-
-(provide 'module-paren)
-
-;;; module-paren.el ends here
 #+end_src
 
 *** rainbow-delimiters
@@ -524,15 +468,10 @@ https://github.com/Fanael/rainbow-delimiters
 
 rainbow-delimiters is a "rainbow parentheses"-like mode which highlights delimiters such as parentheses, brackets or braces according to their depth.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-rainbow-delimiters.el
-;;; module-rainbow-delimiters.el --- Config for rainbow-delimiters
-
+#+name: rainbow-delimiters
+#+begin_src emacs-lisp
 (use-package rainbow-delimiters
-    :hook (prog-mode . rainbow-delimiters-mode))
-
-(provide 'module-rainbow-delimiters)
-
-;;; module-rainbow-delimiters.el ends here
+  :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
 *** restart-emacs
@@ -541,16 +480,11 @@ https://github.com/iqbalansari/restart-emacs
 
 This is a simple package to restart Emacs for within Emacs.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-restart-emacs.el
-;;; module-restart-emacs.el --- Config for restart-emacs
-
+#+name: restart-emacs
+#+begin_src emacs-lisp
 (use-package restart-emacs
   :commands restart-emacs
   :bind ("C-x C-c". nil))
-
-(provide 'module-restart-emacs)
-
-;;; module-restart-emacs.el ends here
 #+end_src
 
 *** treemacs
@@ -559,15 +493,14 @@ https://github.com/Alexander-Miller/treemacs
 
 Treemacs - a tree layout file explorer for Emacs
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-treemacs.el
-;;; module-treemacs.el --- Config for treemacs
-
+#+name: treemacs
+#+begin_src emacs-lisp
 (use-package treemacs
-  :bind ("M-1" . treemacs))
-
-(provide 'module-treemacs)
-
-;;; module-treemacs.el ends here
+  :bind ("M-1" . treemacs)
+  :custom
+  (doom-themes-treemacs-theme "doom-colors")
+  :config
+  (doom-themes-treemacs-config))
 #+end_src
 
 *** vterm
@@ -576,17 +509,12 @@ Treemacs - a tree layout file explorer for Emacs
 
 Emacs-libvterm (vterm) is fully-fledged terminal emulator inside GNU Emacs based on libvterm, a C library. As a result of using compiled code (instead of elisp), emacs-libvterm is fully capable, fast, and it can seamlessly handle large outputs.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-vterm.el
-;;; module-vterm.el --- Config for vterm
-
+#+name: vterm
+#+begin_src emacs-lisp
 (use-package vterm
   :bind ("M-3" . vterm)
   :custom
   (vterm-always-compile-module t))
-
-(provide 'module-vterm)
-
-;;; module-vterm.el ends here
 #+end_src
 
 *** Writeroom
@@ -596,18 +524,14 @@ Emacs-libvterm (vterm) is fully-fledged terminal emulator inside GNU Emacs based
 writeroom-mode is a minor mode for Emacs that implements a distraction-free writing mode similar to the
 famous Writeroom editor for OS X. writeroom-mode is meant for GNU Emacs 24, lower versions are not actively supported.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-writeroom.el
-;;; module-writeroom.el --- Config for Writeroom
-
+#+name: writeroom
+#+begin_src emacs-lisp
 (use-package writeroom-mode
   :bind (("M-2" . writeroom-mode)
          :map writeroom-mode-map
          ("C-," . writeroom-decrease-width)
          ("C-." . writeroom-increase-width)
          ("C-M-=" . writeroom-adjust-width)))
-
-(provide 'module-writeroom)
-;;; module-writeroom.el ends here
 #+end_src
 
 *** Windmove
@@ -616,9 +540,8 @@ https://www.emacswiki.org/emacs/WindMove
 
 Windmove is a library built into GnuEmacs starting with version 21. It lets you move point from window to window using Shift and the arrow keys. This is easier to type than ‘C-x o’ and, for some users, may be more intuitive.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-windmove.el
-;;; module-windmove.el --- Config for windmove
-
+#+name: windmove
+#+begin_src emacs-lisp
 (use-package windmove
   :ensure nil
   :defer 1
@@ -627,10 +550,6 @@ Windmove is a library built into GnuEmacs starting with version 21. It lets you 
   :config
   ;; use shift + arrow keys to switch between visible buffers
   (windmove-default-keybindings 'super))
-
-(provide 'module-windmove)
-
-;;; module-windmove.el --- Config for Writeroom
 #+end_src
 
 *** google-translate
@@ -639,9 +558,8 @@ Windmove is a library built into GnuEmacs starting with version 21. It lets you 
 
 This package allows to translate the strings using Google Translate service directly from GNU Emacs.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-google-translate.el
-;;; module-google-translate.el --- Config for google-translate
-
+#+name: google-translate
+#+begin_src emacs-lisp
 (defun google-translate--search-tkk-new () "Search TKK." (list 430675 2721866130))
 
 (use-package google-translate
@@ -652,12 +570,7 @@ This package allows to translate the strings using Google Translate service dire
     :custom
     (google-translate-backend-method 'curl)
     (google-translate-default-source-language "en")
-    (google-translate-default-target-language "ru")
-    :pin melpa)
-
-(provide 'module-google-translate)
-
-;;; module-google-translate.el ends here
+    (google-translate-default-target-language "ru"))
 #+end_src
 
 *** which-key
@@ -666,18 +579,13 @@ This package allows to translate the strings using Google Translate service dire
 
 which-key is a minor mode for Emacs that displays the key bindings following your currently entered incomplete command (a prefix) in a popup.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-which-key.el
-;;; module-which-key.el --- Config for which-key
-
+#+name: which-key
+#+begin_src emacs-lisp
 (use-package which-key
 	:hook (after-init . which-key-mode)
 	:custom
 	(which-key-idle-delay 3.0)
 	(which-key-idle-secondary-delay 0.1))
-
-(provide 'module-which-key)
-
-;;; module-which-key.el ends here
 #+end_src
 
 *** crux
@@ -686,18 +594,12 @@ which-key is a minor mode for Emacs that displays the key bindings following you
 
 A Collection of Ridiculously Useful eXtensions for Emacs. crux bundles many useful interactive commands to enhance your overall Emacs experience.
 
-#+begin_src emacs-lisp  :tangle ~/.emacs.d/modules/module-crux.el
-;;; module-crux.el --- Config for crux
-
+#+name: crux
+#+begin_src emacs-lisp
 (use-package crux
-    :bind (("M-o" . crux-smart-open-line)
-           ("C-a" . crux-move-beginning-of-line)
-           ("C-k" . crux-smart-kill-line))
-    :pin melpa)
-
-(provide 'module-crux)
-
-;;; module-crux.el ends here
+  :bind (("M-o" . crux-smart-open-line)
+         ("C-a" . crux-move-beginning-of-line)
+         ("C-k" . crux-smart-kill-line)))
 #+end_src
 
 *** YASnippet
@@ -705,20 +607,16 @@ A Collection of Ridiculously Useful eXtensions for Emacs. crux bundles many usef
 [[https://github.com/joaotavora/yasnippet][https://github.com/joaotavora/yasnippet]]
 YASnippet is a template system for Emacs. It allows you to type an abbreviation and automatically expand it into function templates.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-yasnippet.el
-;;; module-yasnippet.el --- Config for yasnippet
-
+#+name: yasnippet
+#+begin_src emacs-lisp
 (use-package yasnippet
-	:hook (prog-mode . yas-minor-mode)
+  :hook ((org-mode  . yas-minor-mode)
+         (prog-mode . yas-minor-mode))
 	:custom
   (yas-snippet-dirs '("~/.emacs.d/snippets"))
   :config
   (use-package yasnippet-snippets)
   (yas-reload-all))
-
-(provide 'module-yasnippet)
-
-;;; module-yasnippet.el ends here
 #+end_src
 
 *** ESUP - Emacs Start Up Profiler
@@ -727,18 +625,12 @@ https://github.com/jschaf/esup
 
 Benchmark Emacs Startup time without ever leaving your Emacs.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-esup.el
-;;; module-esup.el --- Config for esup
-
+#+name: esup
+#+begin_src emacs-lisp
 (use-package esup
   :commands esup
   :custom
-  (esup-depth 0)
-  :pin melpa-stable)
-
-(provide 'module-esup)
-
-;;; module-esup.el ends here
+  (esup-depth 0))
 #+end_src
 
 *** Emms - Emacs Multi-Media System
@@ -747,9 +639,8 @@ https://www.emacswiki.org/emacs/EMMS
 
 EMMS is the Emacs Multi-Media System. It tries to be a clean and small application to play multimedia files from Emacs using external players. Many of its ideas are derived from MpthreePlayer, but it tries to be more general and cleaner. It is comparable to Bongo.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-emms.el
-;;; module-emms.el --- Config for Emms
-
+#+name: emms
+#+begin_src emacs-lisp
 (use-package emms
   :commands emms
   :bind (("M-8" . emms-stop)
@@ -762,16 +653,12 @@ EMMS is the Emacs Multi-Media System. It tries to be a clean and small applicati
   :config
   (require 'emms-setup)
   (emms-all))
-
-(provide 'module-emms)
-;;; module-emms.el ends here
  #+end_src
 
 *** all-the-icons
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-all-the-icons.el
-;;; module-all-the-icons.el --- Config for all-the-icons
-
+#+name: all-the-icons
+#+begin_src emacs-lisp
 ;; In order for the icons to work it is very important that you install
 ;; the Resource Fonts included in this package, they are available in the
 ;; fonts directory. You can also install the latest fonts for this package
@@ -780,60 +667,38 @@ EMMS is the Emacs Multi-Media System. It tries to be a clean and small applicati
 
 (use-package all-the-icons
   :defer 1)
-
-(provide 'module-all-the-icons)
-
-;;; module-all-the-icons.el ends here
 #+end_src
 
-*** ivy
+*** selectrum
 
-https://github.com/abo-abo/swiper
+https://github.com/raxod502/selectrum
 
-Flexible, simple tools for minibuffer completion in Emacs.
-Ivy is a generic completion mechanism for Emacs. While it operates
-similarly to other completion schemes such as icomplete-mode, Ivy
-aims to be more efficient, smaller, simpler, and smoother to use
-yet highly customizable.
+Selectrum is a better solution for incremental narrowing in Emacs,
+replacing Helm, Ivy, and Ido.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-ivy.el
-;;; module-ivy.el --- Config for Ivy/swiper/councel -*- lexical-binding: t -*-
-
-(use-package ivy
-  :hook (after-init . ivy-mode)
-
-  :bind (("C-x b" . ivy-switch-buffer)
-         :map ivy-minibuffer-map
-         ("<up>"     . ivy-previous-history-element)
-         ("<down>"   . ivy-next-history-element)
-         ("<right>"  . ivy-next-line)
-         ("<left>"   . ivy-previous-line)
+#+name: selectrum
+#+begin_src emacs-lisp
+(use-package selectrum
+  :hook (after-init . selectrum-mode)
+  :bind (:map selectrum-minibuffer-map
+         ("<up>"     . selectrum-previous-candidate)
+         ("<down>"   . selectrum-next-candidate)
+         ("<right>"  . selectrum-next-candidate)
+         ("<left>"   . selectrum-previous-candidate)
          ("<escape>" . minibuffer-keyboard-quit))
-
-  :custom
-  (ivy-use-virtual-buffers t)
-  (enable-recursive-minibuffers t)
-
-  ;; By default ivy starts filters with ^.
-  ;; I don't normally want that and can easily type it manually when I do.
-  (ivy-initial-inputs-alist nil)
-
   :config
-  ;; Counsel, a collection of Ivy-enhanced versions of common Emacs commands.
-  (use-package counsel
-    :bind ("M-y" . counsel-yank-pop))
+  (use-package selectrum-prescient
+    :config
+    (selectrum-prescient-mode +1)
+    (prescient-persist-mode +1)))
+  #+end_src
 
-  ;; Swiper, an Ivy-enhanced alternative to Isearch.
-  (use-package swiper
-    :bind ("C-5" . swiper-isearch)
-    :custom
-    (search-default-mode #'char-fold-to-regexp))
+*** ctrlf
 
-  (use-package all-the-icons-ivy
-    :hook (after-init . all-the-icons-ivy-setup)))
-
-(provide 'module-ivy)
-;;; module-ivy.el ends here
+#+name: ctrlf
+#+begin_src emacs-lisp
+(use-package ctrlf
+  :hook (after-init . ctrlf-mode))
 #+end_src
 
 *** company
@@ -845,12 +710,12 @@ The name stands for "complete anything".
 It uses pluggable back-ends and front-ends to retrieve
 and display completion candidates.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-company.el
-;;; module-company.el --- Config for company-mode
-
+#+name: company
+#+begin_src emacs-lisp
 (use-package company
   :hook ((org-mode . company-mode)
          (prog-mode . company-mode))
+
   :custom
   (company-tooltip-limit 10)
   (company-tooltip-align-annotations t)
@@ -864,26 +729,22 @@ and display completion candidates.
   (company-dabbrev-downcase nil)
   (company-dabbrev-ignore-case nil)
   ;; (company-require-match nil)
-  (company-dabbrev-minimum-length 2))
+  (company-dabbrev-minimum-length 2)
 
-(use-package company-box
-  :hook (company-mode . company-box-mode)
-  :custom
-  (company-box-show-single-candidate t)
-  (company-box-backends-colors nil)
-  (company-box-max-candidates 25)
-  (company-box-scrollbar nil))
-
-(provide 'module-company)
-
-;;; module-company.el ends here
+  :config
+  (use-package company-box
+    :hook (company-mode . company-box-mode)
+    :custom
+    (company-box-show-single-candidate t)
+    (company-box-backends-colors nil)
+    (company-box-max-candidates 25)
+    (company-box-scrollbar nil)))
 #+end_src
 
 *** security
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-security.el
-;;; module-security.el --- Config for encription and security
-
+#+name: security
+#+begin_src emacs-lisp
 (use-package epa
   :after (epg)
   :init
@@ -893,9 +754,6 @@ and display completion candidates.
   :custom
   (epa-pinentry-mode 'loopback)
   :pin melpa)
-
-(provide 'module-security)
-;;; module-security.el ends here
 #+end_src
 
 *** smartparens
@@ -904,31 +762,22 @@ https://github.com/Fuco1/smartparens
 
 Smartparens is a minor mode for dealing with pairs in Emacs.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-smartparens.el
-;;; module-smartparens.el --- Config for smartparens
-
+#+name: smartparens
+#+begin_src emacs-lisp
 (use-package smartparens
   :hook (prog-mode . smartparens-mode))
-
-(provide 'module-smartparens)
-;;; module-smartparens.el ends here
 #+end_src
 
-*** Redmine
+*** org-redmine
 
 https://github.com/gongo/org-redmine
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-org-redmine.el
-;;; module-org-redmine.el --- Config for org-redmine
-
+#+name: org-redmine
+#+begin_src emacs-lisp
 ;; (use-package org-redmine
 ;;     :ensure nil ; do not download by use-package
 ;;     :init
 ;;     (add-to-list 'load-path "~/.emacs.d/org-redmine/"))
-
-(provide 'module-org-redmine)
-
-;;; module-org-redmine.el ends here
 #+end_src
 
 *** dash-at-point
@@ -937,42 +786,29 @@ https://github.com/stanaka/dash-at-point
 
 Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point make it easy to search the word at point with Dash.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-dash-at-point.el
-;;; module-dash-at-point.el --- Config for dash-at-point
-
+#+name: dash-at-point
+#+begin_src emacs-lisp
 (use-package dash-at-point
-    :bind ("C-c d" . dash-at-point))
-
-(provide 'module-dash-at-point)
-
-;;; module-dash-at-point.el ends here
+  :bind ("C-c d" . dash-at-point))
 #+end_src
-
-
 
 ** Block 4 - languages
 *** Lisp
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-lisp.el
-;;; module-lisp.el --- Config for lisp
-
+#+name: lisp
+#+begin_src emacs-lisp
 (use-package slime
   :bind ("M-)" . slime-close-all-parens-in-sexp)
   :init
   (setq inferior-lisp-program "/usr/local/bin/sbcl --noinform")
   :config
   (load (expand-file-name "~/quicklisp/slime-helper.el")))
-
-(provide 'module-lisp)
-
-;;; module-lisp.el ends here
 #+end_src
 
 *** JavaScript
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-javascript.el
-;;; module-javascript.el --- Config for JavaScript
-
+#+name: javascript
+#+begin_src emacs-lisp
 ;; searches the current files parent directories for the node_modules/.bin/ directory and adds it to the buffer local exec-path
 (use-package add-node-modules-path
   :hook js-mode
@@ -991,16 +827,12 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
   :bind (:map js2-mode-map
               ("C-c i" . js-doc-insert-function-doc)
               ("@" . js-doc-insert-tag)))
-
-(provide 'module-javascript)
-;;; module-javascript.el ends here
 #+end_src
 
 *** Clojure
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-clojure.el
-;;; module-clojure.el --- Config for clojure
-
+#+name: clojure
+#+begin_src emacs-lisp
 (use-package clojure-mode
   :mode (("\\.clj\\'"  . clojure-mode)
          ("\\.edn\\'"  . clojure-mode)
@@ -1034,28 +866,20 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 ;; (use-package ivy-clojuredocs
 ;;              :bind (:map clojure-mode-map
 ;;                          (("C-c d" . ivy-clojuredocs-at-point))))
-
-(provide 'module-clojure)
-;;; module-clojure.el ends here
 #+end_src
 
 *** SCSS
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-scss.el
-;;; module-scss.el --- Config for scss
-
+#+name: scss
+#+begin_src emacs-lisp
 (use-package scss-mode
-    :mode ("\\.scss$" . scss-mode))
-
-(provide 'module-scss)
-;;; module-scss.el ends here
+  :mode ("\\.scss$" . scss-mode))
 #+end_src
 
 *** Dart
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-dart.el
-;;; module-dart.el --- Config for dart
-
+#+name: dart
+#+begin_src emacs-lisp
 (use-package dart-mode
   :defer 1
   :custom
@@ -1086,16 +910,12 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 
 ;; run app from desktop without emulator
 (use-package hover)
-
-(provide 'module-dart)
-;;; module-dart.el ends here
 #+end_src
 
 *** Prolog
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-prolog.el
-;;; module-prolog.el --- Config for prolog
-
+#+name: prolog
+#+begin_src emacs-lisp
 ;; (load-file "~/.emacs.d/prolog.elc")
 ;; (autoload 'prolog-mode "prolog" "Major mode for editing Prolog programs." t)
 ;; (add-to-list 'auto-mode-alistt '("\\.pl\\'" . prolog-mode))
@@ -1117,46 +937,31 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
     :bind ([f10] . ediprolog-dwim)
     :custom
     (ediprolog-system 'swi))
-
-(provide 'module-prolog)
-;;; module-prolog.el ends here
 #+end_src
 
 *** Raku
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-raku.el
-;;; module-raku.el --- Config for Raku
 
+#+name: raku
+#+begin_src emacs-lisp
 (use-package raku-mode)
-
-(provide 'module-raku)
-
-;;; module-raku.el ends here
 #+end_src
 
 *** Yaml
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-yaml.el
-;;; module-yaml.el --- Config for Yaml
-
+#+name: yaml
+#+begin_src emacs-lisp
 (use-package yaml-mode
-             :mode "\\.yml\\'")
-
-(provide 'module-yaml)
-;;; module-yaml.el ends here
+  :mode "\\.yml\\'")
 #+end_src
 
 *** PHP
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-php.el
-;;; module-php.el --- Config for PHP
-
+#+name: php
+#+begin_src emacs-lisp
 (eval-when-compile
- (require 'use-package))
+  (require 'use-package))
 
 (use-package php-mode)
-
-(provide 'module-php)
-;;; module-php.el ends here
 #+end_src
 
 ** Block 5 - magit
@@ -1169,31 +974,22 @@ It fills the glaring gap between the Git command-line interface and various GUIs
 letting you perform trivial as well as elaborate version control tasks with just
 a couple of mnemonic key presses.
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-magit.el
-;;; module-magit.el --- Config for magitc
-
+#+name: magit
+#+begin_src emacs-lisp
 (use-package magit
   :defer 1
   :bind ("C-5" . magit-status))
-
-(provide 'module-magit)
-
-;;; module-magit.el ends here
 #+end_src
 
 ** Block 6 - syntax checking
 *** flycheck
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/modules/module-flycheck.el
-;;; module-flycheck.el -- Config for flycheck
-
+#+name: flycheck
+#+begin_src emacs-lisp
 (use-package flycheck
   :hook (after-init . global-flycheck-mode)
   :config
   (use-package flycheck-pos-tip))
-
-(provide 'module-flycheck)
-;;; module-flycheck.el ends here
 #+end_src
 
 ** Block 7 - functions
@@ -1212,92 +1008,107 @@ a couple of mnemonic key presses.
   (rename-buffer name))
 #+end_src
 
-** Block 8 - private info
 
-#+name: private
-#+begin_src emacs-lisp
-(load-file "~/.emacs.d/private.el")
+* early-init.el
+
+#+begin_src emacs-lisp :tangle ~/.emacs.d/early-init.el :noweb yes
+;; early-init.el --- Early initialization. -*- lexical-binding: t -*-
+
+;; Defer garbage collection further back in the startup process
+(setq gc-cons-threshold most-positive-fixnum)
+
+;; Package initialize occurs automatically, before 'user-init-file' is
+;; loaded, but after 'early-init-file'. We handle package
+;; initialization, so we must prevent Emacs from doing it early!
+(setq package-enable-at-startup nil)
+
+;; Inhibit resizing frame
+(setq frame-inhibit-implied-resize t)
+
+;; Faster to disable these here (before they've been initialized)
+(push '(menu-bar-lines . 0) default-frame-alist)
+(push '(tool-bar-lines . 0) default-frame-alist)
+(push '(vertical-scroll-bars) default-frame-alist)
 #+end_src
 
 * init.el
 
-#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el :noweb yes :main no
+#+begin_src emacs-lisp :tangle ~/.emacs.d/init.el :noweb yes
 ;;; init.el -*- lexical-binding: t; -*-
 
-<<gc-tricks>>
-
+<<speed-up>>
 <<package>>
 
 ;; Block 1 - main view & preferences for it
 
-(require 'module-use-package)
-(require 'module-theme)
-(require 'module-theme-settings)
-(require 'module-customize)
-(require 'module-ui-settings)
-(require 'module-doom-modeline)
-(require 'module-menu)
-
+<<use-package>>
+<<doom-themes>>
+<<customize>>
+<<ui-settings>>
+<<doom-modeline>>
+<<menu>>
 <<private>>
-
-(require 'module-settings)
-(require 'module-registers)
+<<settings>>
+<<registers>>
 
 
 ;; Block 2 - orgmode
 
-(require 'module-org)
-(require 'module-agenda)
-
+<<org>>
+<<org-superstar>>
+<<ob-async>>
+<<org-agenda>>
 
 ;; Block 3 - other packages & preferences
 
-(require 'module-paren)
-(require 'module-rainbow-delimiters)
-(require 'module-restart-emacs)
-(require 'module-treemacs)
-(require 'module-vterm)
-(require 'module-writeroom)
-(require 'module-windmove)
-(require 'module-google-translate)
-(require 'module-which-key)
-(require 'module-crux)
-(require 'module-yasnippet)
-(require 'module-esup)
-(require 'module-emms)
-(require 'module-all-the-icons)
-(require 'module-ivy)
-(require 'module-company)
-(require 'module-security)
-(require 'module-smartparens)
-(require 'module-org-redmine)
-(require 'module-dash-at-point)
+<<paren>>
+<<rainbow-delimiters>>
+<<restart-emacs>>
+<<treemacs>>
+<<vterm>>
+<<writeroom>>
+<<windmove>>
+<<google-translate>>
+<<which-key>>
+<<crux>>
+<<yasnippet>>
+<<esup>>
+<<emms>>
+<<all-the-icons>>
+<<selectrum>>
+<<ctrlf>>
+<<company>>
+<<security>>
+<<smartparens>>
+<<org-redmine>>
+<<dash-at-point>>
 
 
 ;; Block 4 - languages
 
-(require 'module-lisp)
-(require 'module-javascript)
-(require 'module-clojure)
-;; (require 'module-scss)
+<<lisp>>
+<<javascript>>
+<<clojure>>
+<<scss>>
 ;; (require 'module-dart)
 ;; (require 'module-prolog)
 ;; (require 'module-raku)
-;; (require 'module-yaml)
+<<yaml>>
 ;; (require 'module-php)
 ;; (require 'module-plantuml)
 
 
 ;; Block 5 - magit
 
-(require 'module-magit)
+<<magit>>
+
 
 ;; Block 6 - syntax checking
 
-(require 'module-flycheck)
+<<flycheck>>
+
 
 ;; Block 7 - functions
 
 <<functions>>
-
 #+end_src
