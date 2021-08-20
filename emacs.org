@@ -24,6 +24,8 @@
                          ("melpa" . "https://melpa.org/packages/")
                          ;; GNU Emacs Lisp Package Archive
                          ("gnu" . "http://elpa.gnu.org/packages/")
+			   ;; NonGNU Emacs Lisp Package Archive
+			   ("nongnu" . "https://elpa.nongnu.org/nongnu/")
                          ;; Org mode
                          ("org" . "https://orgmode.org/elpa/")))
 
@@ -159,7 +161,7 @@ This stops emacs adding customised settings to init.el.
 (add-hook 'after-init-hook
           (lambda ()
             ;; Set default font
-            (set-frame-font "JetBrains Mono 13" nil t)
+            (set-frame-font "JetBrains Mono 12" nil t)
 
             ;; Skip startup screen
             (setq inhibit-startup-screen t)
@@ -335,6 +337,11 @@ ob-async enables asynchronous execution of org-babel src blocks.
 (use-package org
   :ensure nil
 
+  :hook (org-mode . (lambda()
+                      ;; Set default font for org-mode some a bit more
+                      (setq buffer-face-mode-face '(:height 130))
+                      (buffer-face-mode)))
+
   :mode ("\\.org\\'" . org-mode)
 
   :bind (("C-1" . save-buffer)
@@ -425,6 +432,7 @@ ob-async enables asynchronous execution of org-babel src blocks.
                              :family ,(aref fonts 5)
                              :foreground "DarkOrange4"
                              :extend t))))
+
   :config
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config)
@@ -624,7 +632,19 @@ YASnippet is a template system for Emacs. It allows you to type an abbreviation 
 (use-package yasnippet
   :hook ((org-mode  . yas-minor-mode)
          (prog-mode . yas-minor-mode))
+
+  :bind (:map yas-minor-mode-map
+              ;; Disable TAB from expanding snippets, as I don't use it and
+              ;; it's annoying.
+              ("TAB" . nil)
+              ("<tab>" . nil))
+
 	:custom
+  ;; Reduce verbosity. The default value is 3. Bumping it down to 2
+  ;; eliminates a message about successful snippet lazy-loading setup
+  ;; on every(!) Emacs init. Errors should still be shown.
+  (yas-verbosity 2)
+
   (yas-snippet-dirs '("~/.emacs.d/snippets"))
   :config
   (use-package yasnippet-snippets)
@@ -786,6 +806,24 @@ Smartparens is a minor mode for dealing with pairs in Emacs.
   :hook (prog-mode . smartparens-mode))
 #+end_src
 
+*** Projectile
+
+https://github.com/bbatsov/projectile
+
+Projectile is a project interaction library for Emacs.
+Its goal is to provide a nice set of features operating
+on a project level without introducing external dependencies
+(when feasible). For instance - finding project files has a
+portable implementation written in pure Emacs Lisp without
+the use of GNU find (but for performance sake an indexing
+mechanism backed by external commands exists as well).
+
+#+name: projectile
+#+begin_src emacs-lisp
+(use-package projectile
+  :hook (after-init . projectile-mode))
+#+end_src
+
 *** org-redmine
 
 https://github.com/gongo/org-redmine
@@ -825,6 +863,41 @@ It reindents after every change, making it more reliable than electric-indent-mo
 #+end_src
 
 ** Block 4 - languages
+*** Elisp
+
+**** highlight-defined
+
+#+begin_src emacs-lisp
+(use-package highlight-defined
+  :hook (emacs-lisp-mode  . highlight-defined-mode)
+  :custom-face
+  (highlight-defined-variable-name-face ((t (:inherit 'font-lock-variable-name-face
+                                             :foreground "grey65"))))
+  (highlight-defined-function-name-face ((t (:inherit 'font-lock-function-name-face
+                                             :foreground "grey65"))))
+  (highlight-defined-builtin-function-name-face ((t (:inherit 'highlight-defined-function-name-face
+                                                     :foreground "grey65"))))
+  :custom
+  (highlight-defined-face-use-itself nil))
+#+end_src
+
+
+**** elisp-mode
+
+Emacs lisp mode
+
+#+name: elisp
+#+begin_src emacs-lisp
+(use-package elisp-mode
+  :ensure nil
+  :defines flycheck-disabled-checkers
+  :hook (emacs-lisp-mode . (lambda ()
+                             "Disable the checkdoc checker."
+                             (interactive)
+                             (setq-local flycheck-disabled-checkers
+                                         '(emacs-lisp-checkdoc)))))
+#+end_src
+
 *** Lisp
 
 #+name: lisp
@@ -942,6 +1015,10 @@ indentation, navigation and refactoring support for the Clojure(Script) programm
 #+end_src
 
 *** SCSS
+
+https://github.com/antonj/scss-mode
+
+Major mode for editing SCSS files in Emacs.
 
 #+name: scss
 #+begin_src emacs-lisp
@@ -1153,6 +1230,7 @@ a couple of mnemonic key presses.
 <<company>>
 <<security>>
 <<smartparens>>
+<<projectile>>
 <<org-redmine>>
 <<dash-at-point>>
 <<aggressive-indent>>
@@ -1160,6 +1238,7 @@ a couple of mnemonic key presses.
 
 ;; Block 4 - languages
 
+<<elisp>>
 <<lisp>>
 <<javascript>>
 <<clojure>>
