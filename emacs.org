@@ -961,6 +961,7 @@ This package integrates clj-kondo with Emacs via flycheck.
 (use-package flycheck-clj-kondo
   :defer t)
 #+end_src
+
 **** cider
 
 https://github.com/clojure-emacs/cider
