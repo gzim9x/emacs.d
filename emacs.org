@@ -1,7 +1,9 @@
 * README.md
 [[file:README.md][README.md]]
 
-* Debug
+* Blocks
+** Block 0 - main init
+*** Debug
 
 #+name: debug
 #+begin_src emacs-lisp
@@ -12,7 +14,7 @@
 (setq debug-on-error t)
 #+end_src
 
-* Speed-up
+*** Speed-up
 
 #+name: speed-up
 #+begin_src emacs-lisp
@@ -27,7 +29,7 @@
 (setq ffap-machine-p-known 'reject)
 #+end_src
 
-* Package
+*** Package
 
 #+name: package
 #+begin_src emacs-lisp
@@ -47,7 +49,6 @@
 (package-initialize)
 #+end_src
 
-* Blocks
 ** Block 1 - main view & preferences for it
 *** use-package
 
@@ -1203,6 +1204,8 @@ a couple of mnemonic key presses.
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/init.el :noweb yes
 ;;; init.el -*- lexical-binding: t; -*-
+
+;; Block 0 - main init
 
 <<debug>>
 <<speed-up>>
