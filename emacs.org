@@ -1204,8 +1204,7 @@ a couple of mnemonic key presses.
 #+begin_src emacs-lisp :tangle ~/.emacs.d/init.el :noweb yes
 ;;; init.el -*- lexical-binding: t; -*-
 
-(setq debug-on-error t)
-
+<<debug>>
 <<speed-up>>
 <<package>>
 
