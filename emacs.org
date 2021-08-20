@@ -1,5 +1,17 @@
 * README.md
 [[file:README.md][README.md]]
+
+* Debug
+
+#+name: debug
+#+begin_src emacs-lisp
+;; This variable determines whether the debugger is called when an
+;; error is signaled and not handled. If debug-on-error is t, all
+;; kinds of errors call the debugger, except those listed in
+;; debug-ignored-errors (see below). If it is nil, none call the debugger.
+(setq debug-on-error t)
+#+end_src
+
 * Speed-up
 
 #+name: speed-up
@@ -1191,6 +1203,8 @@ a couple of mnemonic key presses.
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/init.el :noweb yes
 ;;; init.el -*- lexical-binding: t; -*-
+
+(setq debug-on-error t)
 
 <<speed-up>>
 <<package>>
