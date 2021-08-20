@@ -864,30 +864,29 @@ It reindents after every change, making it more reliable than electric-indent-mo
 
 ** Block 4 - languages
 *** Elisp
-
 **** highlight-defined
 
+#+name: highlight-defined
 #+begin_src emacs-lisp
 (use-package highlight-defined
   :hook (emacs-lisp-mode  . highlight-defined-mode)
   :custom-face
   (highlight-defined-variable-name-face ((t (:inherit 'font-lock-variable-name-face
-                                             :foreground "grey65"))))
+                                             :foreground "RosyBrown3"))))
   (highlight-defined-function-name-face ((t (:inherit 'font-lock-function-name-face
-                                             :foreground "grey65"))))
+                                             :foreground "RosyBrown3"))))
   (highlight-defined-builtin-function-name-face ((t (:inherit 'highlight-defined-function-name-face
                                                      :foreground "grey65"))))
   :custom
   (highlight-defined-face-use-itself nil))
 #+end_src
 
-
 **** elisp-mode
 
 Emacs lisp mode
 
 #+name: elisp
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb yes
 (use-package elisp-mode
   :ensure nil
   :defines flycheck-disabled-checkers
@@ -896,6 +895,7 @@ Emacs lisp mode
                              (interactive)
                              (setq-local flycheck-disabled-checkers
                                          '(emacs-lisp-checkdoc)))))
+<<highlight-defined>>
 #+end_src
 
 *** Lisp
