@@ -40,8 +40,8 @@
                          ("melpa" . "https://melpa.org/packages/")
                          ;; GNU Emacs Lisp Package Archive
                          ("gnu" . "http://elpa.gnu.org/packages/")
-			   ;; NonGNU Emacs Lisp Package Archive
-			   ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+                         ;; NonGNU Emacs Lisp Package Archive
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
                          ;; Org mode
                          ("org" . "https://orgmode.org/elpa/")))
 
@@ -116,26 +116,6 @@ but will work fine anywhere else.
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
-
-  ;; Foreground colors
-  (setq fg-colors ["wheat2"
-                   "white"
-                   "MediumOrchid2"
-                   "#5c6380"
-                   "wheat1"
-                   "DarkOliveGreen2"
-                   "PeachPuff2"
-                   "DarkSeaGreen2"
-                   "DarkSlateGray2"])
-
-  ;; Background colors
-  (setq bg-colors ["#222131"
-                   "grey12"
-                   "#21242e"
-                   "black"
-                   "#071020"
-                   "grey20"
-                   "#231c30"])
 
   ;; Fonts
   (setq fonts ["JetBrains Mono"
@@ -352,10 +332,10 @@ ob-async enables asynchronous execution of org-babel src blocks.
 (use-package org
   :ensure nil
 
-  :hook (org-mode . (lambda()
-                      ;; Set default font for org-mode some a bit more
-                      (setq buffer-face-mode-face '(:height 130))
-                      (buffer-face-mode)))
+  ;; :hook (org-mode . (lambda()
+  ;;                     ;; Set default font for org-mode some a bit more
+  ;;                     (setq buffer-face-mode-face '(:height 130))
+  ;;                     (buffer-face-mode)))
 
   :mode ("\\.org\\'" . org-mode)
 
@@ -627,7 +607,9 @@ which-key is a minor mode for Emacs that displays the key bindings following you
 
 [[https://github.com/bbatsov/crux][https://github.com/bbatsov/crux]]
 
-A Collection of Ridiculously Useful eXtensions for Emacs. crux bundles many useful interactive commands to enhance your overall Emacs experience.
+A Collection of Ridiculously Useful eXtensions for Emacs.
+crux bundles many useful interactive commands to enhance your
+overall Emacs experience.
 
 #+name: crux
 #+begin_src emacs-lisp
@@ -635,6 +617,19 @@ A Collection of Ridiculously Useful eXtensions for Emacs. crux bundles many usef
   :bind (("M-o" . crux-smart-open-line)
          ("C-a" . crux-move-beginning-of-line)
          ("C-k" . crux-smart-kill-line)))
+#+end_src
+
+*** expand-region
+
+https://github.com/magnars/expand-region.el
+
+Expand region increases the selected region by semantic units.
+Just keep pressing the key until it selects what you want.
+
+#+name: expand-region
+#+begin_src emacs-lisp
+(use-package expand-region
+  :bind ("C-=" . er/expand-region))
 #+end_src
 
 *** YASnippet
@@ -695,7 +690,7 @@ EMMS is the Emacs Multi-Media System. It tries to be a clean and small applicati
                     (interactive)
                     (emms-play-directory my-emms-directory-music))))
   :custom
-  (emms-player-list '(emms-player-mpv))
+  (emms-player-list '(emms-player-mplayer))
   (emms-playlist-buffer-name "*Emms player*")
   :config
   (require 'emms-setup)
@@ -739,14 +734,6 @@ replacing Helm, Ivy, and Ido.
     (selectrum-prescient-mode +1)
     (prescient-persist-mode +1)))
   #+end_src
-
-*** ctrlf
-
-#+name: ctrlf
-#+begin_src emacs-lisp
-(use-package ctrlf
-  :hook (after-init . ctrlf-mode))
-#+end_src
 
 *** company
 
@@ -884,12 +871,12 @@ It reindents after every change, making it more reliable than electric-indent-mo
 #+name: highlight-defined
 #+begin_src emacs-lisp
 (use-package highlight-defined
-  :hook (emacs-lisp-mode  . highlight-defined-mode)
+  :hook (emacs-lisp-mode . highlight-defined-mode)
   :custom-face
   (highlight-defined-variable-name-face ((t (:inherit 'font-lock-variable-name-face
-                                             :foreground "RosyBrown3"))))
+                                             :foreground "PaleGreen3"))))
   (highlight-defined-function-name-face ((t (:inherit 'font-lock-function-name-face
-                                             :foreground "RosyBrown3"))))
+                                             :foreground "PaleGreen3"))))
   (highlight-defined-builtin-function-name-face ((t (:inherit 'highlight-defined-function-name-face
                                                      :foreground "grey65"))))
   :custom
@@ -978,10 +965,11 @@ lookup, running tests and so on.
 #+name: cider
 #+begin_src emacs-lisp
 (use-package cider
-  :commands (cider-jack-in
-             cider-jack-in-clj
-             cider-jack-in-cljs
-             cider-jack-in-clj&cljs)
+  :defer t
+  ;; :commands (cider-jack-in
+  ;;            cider-jack-in-clj
+  ;;            cider-jack-in-cljs
+  ;;            cider-jack-in-clj&cljs)
   :custom
 
   ;; The CIDER welcome message often obscures any error messages that
@@ -1242,12 +1230,12 @@ a couple of mnemonic key presses.
 <<google-translate>>
 <<which-key>>
 <<crux>>
+<<expand-region>>
 <<yasnippet>>
 <<esup>>
 <<emms>>
 <<all-the-icons>>
 <<selectrum>>
-<<ctrlf>>
 <<company>>
 <<security>>
 <<smartparens>>
