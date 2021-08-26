@@ -135,7 +135,8 @@ but will work fine anywhere else.
                "Verdana"
                "Tahoma"
                "Monaco"
-               "PT Mono"]))
+               "PT Mono"
+               "Fira Code"]))
 #+end_src
 
 *** customize
@@ -156,7 +157,7 @@ This stops emacs adding customised settings to init.el.
 (add-hook 'after-init-hook
           (lambda ()
             ;; Set default font
-            (set-frame-font "JetBrains Mono 12" nil t)
+            (set-frame-font "Fira Code 12" nil t)
 
             ;; Skip startup screen
             (setq inhibit-startup-screen t)
@@ -360,20 +361,20 @@ ob-async enables asynchronous execution of org-babel src blocks.
   (org-hide-emphasis-markers nil)
   (org-todo-keywords '((sequence "TODO(t)" "STARTED(s!)" "DONE(d!/!)" "WAITING(w!/!)" "CANCELLED(c!/!)")))
   (org-todo-keyword-faces '(("TODO"      . (:foreground "DeepPink2"
-                                            :weight bold
-                                            :height 100))
+                                                        :weight bold
+                                                        :height 100))
            		    ("STARTED"   . (:foreground "goldenrod1"
-                                            :weight bold
-                                            :height 100))
+                                                        :weight bold
+                                                        :height 100))
            		    ("DONE"      . (:foreground "snow4"
-                                            :weight bold
-                                            :height 100))
+                                                        :weight bold
+                                                        :height 100))
            		    ("WAITING"   . (:foreground "pink1"
-                                            :weight bold
-                                            :height 100))
+                                                        :weight bold
+                                                        :height 100))
            		    ("CANCELLED" . (:foreground "gray38"
-                                            :weight bold
-                                            :height 100))))
+                                                        :weight bold
+                                                        :height 100))))
 
   ;; state changes will be logged in chronological order, from top to bottom
   (org-log-states-order-reversed nil)
@@ -385,48 +386,48 @@ ob-async enables asynchronous execution of org-babel src blocks.
 
   :custom-face
   (org-property-value ((t (:foreground "LightPink2"
-                           :weight normal
-                           :family ,(aref fonts 5)))))
+                                       :weight normal
+                                       :family ,(aref fonts 5)))))
 
   (org-level-1 ((t (:inherit 'outline-1
-                    :height 180
-                    :family ,(aref fonts 1)
-                    :weight bold))))
+                             :height 180
+                             :family ,(aref fonts 1)
+                             :weight bold))))
 
   (org-level-2 ((t (:inherit 'outline-2
-                    :height 170
-                    :family ,(aref fonts 1)
-                    :weight bold))))
+                             :height 170
+                             :family ,(aref fonts 1)
+                             :weight bold))))
 
   (org-level-3 ((t (:inherit 'outline-3
-                    :height 170
-                    :family ,(aref fonts 1)
-                    :weight bold))))
+                             :height 170
+                             :family ,(aref fonts 1)
+                             :weight bold))))
 
   (org-level-4 ((t (:inherit 'outline-4
-                    :height 170
-                    :family ,(aref fonts 1)
-                    :weight bold))))
+                             :height 170
+                             :family ,(aref fonts 1)
+                             :weight bold))))
 
   (org-level-5 ((t (:inherit 'outline-5
-                    :height 170
-                    :family ,(aref fonts 1)
-                    :weight bold))))
+                             :height 170
+                             :family ,(aref fonts 1)
+                             :weight bold))))
 
   (org-level-6 ((t (:inherit 'outline-6
-                    :height 170
-                    :family ,(aref fonts 1)
-                    :weight bold))))
+                             :height 170
+                             :family ,(aref fonts 1)
+                             :weight bold))))
 
-  (org-meta-line ((t (:height 140
-                      :family ,(aref fonts 5)
-                      :foreground "LightSalmon2"))))
+  (org-meta-line ((t (:height 130
+                              :family ,(aref fonts 18)
+                              :foreground "LightSalmon2"))))
 
   (org-block-begin-line ((t (:inherit 'org-block
-                             :height 140
-                             :family ,(aref fonts 5)
-                             :foreground "DarkOrange4"
-                             :extend t))))
+                                      :height 130
+                                      :family ,(aref fonts 18)
+                                      :foreground "DarkOrange4"
+                                      :extend t))))
 
   :config
   ;; Corrects (and improves) org-mode's native fontification.
