@@ -481,7 +481,9 @@ show-paren-mode allows one to see matching pairs of parentheses
 
 https://github.com/Fanael/rainbow-delimiters
 
-rainbow-delimiters is a "rainbow parentheses"-like mode which highlights delimiters such as parentheses, brackets or braces according to their depth.
+rainbow-delimiters is a "rainbow parentheses"-like mode which
+highlights delimiters such as parentheses, brackets or braces
+according to their depth.
 
 #+name: rainbow-delimiters
 #+begin_src emacs-lisp
@@ -679,22 +681,41 @@ Benchmark Emacs Startup time without ever leaving your Emacs.
 
 https://www.emacswiki.org/emacs/EMMS
 
-EMMS is the Emacs Multi-Media System. It tries to be a clean and small application to play multimedia files from Emacs using external players. Many of its ideas are derived from MpthreePlayer, but it tries to be more general and cleaner. It is comparable to Bongo.
+EMMS is the Emacs Multi-Media System.
+It tries to be a clean and small application to play multimedia files from Emacs
+using external players. Many of its ideas are derived from MpthreePlayer,
+but it tries to be more general and cleaner. It is comparable to Bongo.
 
 #+name: emms
 #+begin_src emacs-lisp
 (use-package emms
-  :commands emms
-  :bind (("M-8" . emms-stop)
-         ("M-7" . (lambda ()
+  :commands (emms emms-streams emms-playlist-new)
+
+  :bind (("M-5" . emms-previous)
+         ("C-6" . (lambda ()
+                      (interactive)
+                      (emms-playlist-new "Radios")
+                      ;; (emms-playlist-set-playlist-buffer)
+                      (emms-play-playlist "~/.emacs.d/radios.emms")))
+         ("M-6" . (lambda ()
                     (interactive)
-                    (emms-play-directory my-emms-directory-music))))
-  :custom
-  (emms-player-list '(emms-player-mplayer))
-  (emms-playlist-buffer-name "*Emms player*")
+                    ;; (emms-play-streamlist "")
+                    (emms-play-directory my-emms-directory-music)
+                    ))
+         ("M-7" . emms-stop)
+         ("M-8" . emms-next))
+
   :config
   (require 'emms-setup)
-  (emms-all))
+  (emms-all)
+  (emms-default-players)
+
+  ;; Remove playing time from mode line.
+  (emms-playing-time-disable-display)
+
+  :custom
+  (emms-info-asynchronously t)
+  (emms-playlist-buffer-name "*Emms*"))
  #+end_src
 
 *** all-the-icons
@@ -868,17 +889,25 @@ It reindents after every change, making it more reliable than electric-indent-mo
 *** Elisp
 **** highlight-defined
 
+https://github.com/Fanael/highlight-defined
+
+highlight-defined is an Emacs minor mode that highlights defined
+Emacs Lisp symbols in source code.
+
+Currently it recognizes Lisp function, built-in function, macro,
+face and variable names.
+
 #+name: highlight-defined
 #+begin_src emacs-lisp
 (use-package highlight-defined
   :hook (emacs-lisp-mode . highlight-defined-mode)
   :custom-face
   (highlight-defined-variable-name-face ((t (:inherit 'font-lock-variable-name-face
-                                             :foreground "PaleGreen3"))))
+                                             :foreground "RosyBrown3"))))
   (highlight-defined-function-name-face ((t (:inherit 'font-lock-function-name-face
-                                             :foreground "PaleGreen3"))))
+                                             :foreground "wheat3"))))
   (highlight-defined-builtin-function-name-face ((t (:inherit 'highlight-defined-function-name-face
-                                                     :foreground "grey65"))))
+                                                     :foreground "RosyBrown1"))))
   :custom
   (highlight-defined-face-use-itself nil))
 #+end_src
