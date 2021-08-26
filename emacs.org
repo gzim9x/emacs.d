@@ -157,7 +157,7 @@ This stops emacs adding customised settings to init.el.
 (add-hook 'after-init-hook
           (lambda ()
             ;; Set default font
-            (set-frame-font "Fira Code 12" nil t)
+            (set-frame-font "Fira Code 13" nil t)
 
             ;; Skip startup screen
             (setq inhibit-startup-screen t)
@@ -385,49 +385,11 @@ ob-async enables asynchronous execution of org-babel src blocks.
   (org-hierarchical-todo-statistics nil)
 
   :custom-face
-  (org-property-value ((t (:foreground "LightPink2"
-                                       :weight normal
-                                       :family ,(aref fonts 5)))))
-
-  (org-level-1 ((t (:inherit 'outline-1
-                             :height 180
-                             :family ,(aref fonts 1)
-                             :weight bold))))
-
-  (org-level-2 ((t (:inherit 'outline-2
-                             :height 170
-                             :family ,(aref fonts 1)
-                             :weight bold))))
-
-  (org-level-3 ((t (:inherit 'outline-3
-                             :height 170
-                             :family ,(aref fonts 1)
-                             :weight bold))))
-
-  (org-level-4 ((t (:inherit 'outline-4
-                             :height 170
-                             :family ,(aref fonts 1)
-                             :weight bold))))
-
-  (org-level-5 ((t (:inherit 'outline-5
-                             :height 170
-                             :family ,(aref fonts 1)
-                             :weight bold))))
-
-  (org-level-6 ((t (:inherit 'outline-6
-                             :height 170
-                             :family ,(aref fonts 1)
-                             :weight bold))))
-
-  (org-meta-line ((t (:height 130
-                              :family ,(aref fonts 18)
-                              :foreground "LightSalmon2"))))
-
+  (org-property-value ((t (:foreground "LightPink2"))))
+  (org-meta-line ((t (:foreground "LightSalmon2"))))
   (org-block-begin-line ((t (:inherit 'org-block
-                                      :height 130
-                                      :family ,(aref fonts 18)
-                                      :foreground "DarkOrange4"
-                                      :extend t))))
+                             :foreground "DarkOrange4"
+                             :extend t))))
 
   :config
   ;; Corrects (and improves) org-mode's native fontification.
@@ -447,7 +409,8 @@ ob-async enables asynchronous execution of org-babel src blocks.
       				 ;; (php . t)
                                  (plantuml . t)))
   <<org-superstar>>
-  <<ob-async>>)
+  <<ob-async>>
+  )
 #+end_src
 
 **** org-agenda
@@ -744,12 +707,14 @@ replacing Helm, Ivy, and Ido.
 #+begin_src emacs-lisp
 (use-package selectrum
   :hook (after-init . selectrum-mode)
+
   :bind (:map selectrum-minibuffer-map
-         ("<up>"     . selectrum-previous-candidate)
-         ("<down>"   . selectrum-next-candidate)
-         ("<right>"  . selectrum-next-candidate)
-         ("<left>"   . selectrum-previous-candidate)
-         ("<escape>" . minibuffer-keyboard-quit))
+              ("<up>"     . selectrum-previous-candidate)
+              ("<down>"   . selectrum-next-candidate)
+              ("<right>"  . selectrum-next-candidate)
+              ("<left>"   . selectrum-previous-candidate)
+              ("<escape>" . minibuffer-keyboard-quit))
+
   :config
   (use-package selectrum-prescient
     :config
@@ -884,6 +849,20 @@ It reindents after every change, making it more reliable than electric-indent-mo
 (use-package aggressive-indent
   :hook ((emacs-lisp-mode . aggressive-indent-mode)
          (clojure-mode . aggressive-indent-mode)))
+#+end_src
+
+*** doc-view
+
+#+name: doc-view
+#+begin_src emacs-lisp
+(use-package doc-view
+  :ensure nil
+  :commands doc-view-mode
+  :bind (:map doc-view-mode-map
+              ("<right>" . doc-view-next-page)
+              ("<left>"  . doc-view-previous-page))
+  :custom
+  (doc-view-resolution 300))
 #+end_src
 
 ** Block 4 - languages
@@ -1196,7 +1175,7 @@ a couple of mnemonic key presses.
   (rename-buffer name))
 #+end_src
 
-* FIles
+* Files
 ** early-init.el
 
 #+begin_src emacs-lisp :tangle ~/.emacs.d/early-init.el :noweb yes
@@ -1273,6 +1252,7 @@ a couple of mnemonic key presses.
 <<org-redmine>>
 <<dash-at-point>>
 <<aggressive-indent>>
+<<doc-view>>
 
 
 ;; Block 4 - languages
