@@ -176,6 +176,15 @@ This stops emacs adding customised settings to init.el.
 
             (setq use-dialog-box nil)
 
+            ;; UTF-8 support
+            (setenv "LC_ALL" "ru_RU.UTF-8")
+            (setenv "LANG" "ru_RU.UTF-8")
+            (prefer-coding-system 'utf-8)
+            (set-default-coding-systems 'utf-8)
+            (set-terminal-coding-system 'utf-8)
+            (set-keyboard-coding-system 'utf-8)
+
+
             ;; (setq menu-bar-mode t)
             ))
 #+end_src
@@ -190,7 +199,9 @@ It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
 #+name: doom-modeline
 #+begin_src emacs-lisp
 (use-package doom-modeline
-  :hook (after-init . doom-modeline-mode))
+  :hook (after-init . doom-modeline-mode)
+  :custom-face
+  (mode-line ((t (:height 0.90)))))
 #+end_src
 
 *** menu
@@ -309,6 +320,35 @@ ob-async enables asynchronous execution of org-babel src blocks.
   (defalias 'org-babel-execute-src-block:async 'ob-async-org-babel-execute-src-block))
 #+end_src
 
+**** ob-http
+
+https://github.com/zweifisch/ob-http
+
+http request in org-mode babel, requires curl
+
+#+name: ob-http
+#+begin_src emacs-lisp
+(use-package ob-http)
+#+end_src
+
+**** PlantUML
+
+https://plantuml.com/en/emacs
+
+From the original work by Zhang Weize, plantuml-mode supports editing
+and previewing PlantUML diagrams all within Emacs, optionally also
+integrating with Org-Babel.
+
+#+name: plantuml
+#+begin_src emacs-lisp
+(use-package plantuml-mode
+  ;; :config
+  ;; (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
+  :init
+  (setq plantuml-default-exec-mode 'jar)
+  (setq org-plantuml-jar-path (expand-file-name "~/plantuml.jar")))
+#+end_src
+
 **** org
 
 #+name: org
@@ -347,7 +387,8 @@ ob-async enables asynchronous execution of org-babel src blocks.
          ("C-t" . org-babel-tangle)
          ("M-]" . g7r-save-code-block)
          ("M-[" . g7r-get-code-block))
-  ;; :hook ((org-babel-after-execute . org-redisplay-inline-images)) ;; TODO need rewrite
+
+  :hook ((org-babel-after-execute . org-redisplay-inline-images)) ;; TODO need rewrite
 
   :custom
   (org-startup-indented t)
@@ -394,6 +435,7 @@ ob-async enables asynchronous execution of org-babel src blocks.
   :config
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config)
+  (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((emacs-lisp . t)
                                  (lisp . t)
@@ -407,9 +449,13 @@ ob-async enables asynchronous execution of org-babel src blocks.
       				 ;; (raku . t)
       				 ;; (dart . t)
       				 ;; (php . t)
-                                 (plantuml . t)))
+                                 (ledger . t)
+                                 (plantuml . t)
+                                 (http . t)))
   <<org-superstar>>
   <<ob-async>>
+  <<ob-http>>
+  <<plantuml>>
   )
 #+end_src
 
@@ -425,22 +471,6 @@ ob-async enables asynchronous execution of org-babel src blocks.
 #+end_src
 
 ** Block 3 - other packages & preferences
-*** paren
-
-https://www.emacswiki.org/emacs/ShowParenMode
-
-show-paren-mode allows one to see matching pairs of parentheses
-
-#+name: paren
-#+begin_src emacs-lisp
-(use-package paren
-    :ensure nil
-    :hook (prog-mode . show-paren-mode)
-    :custom
-    (show-paren-delay 0)
-    (show-paren-style 'parenthesis))
-#+end_src
-
 *** rainbow-delimiters
 
 https://github.com/Fanael/rainbow-delimiters
@@ -619,9 +649,10 @@ YASnippet is a template system for Emacs. It allows you to type an abbreviation 
   ;; Reduce verbosity. The default value is 3. Bumping it down to 2
   ;; eliminates a message about successful snippet lazy-loading setup
   ;; on every(!) Emacs init. Errors should still be shown.
-  (yas-verbosity 2)
+  ;; (yas-verbosity 2)
 
   (yas-snippet-dirs '("~/.emacs.d/snippets"))
+
   :config
   (use-package yasnippet-snippets)
   (yas-reload-all))
@@ -673,6 +704,10 @@ but it tries to be more general and cleaner. It is comparable to Bongo.
   (require 'emms-setup)
   (emms-all)
   (emms-default-players)
+
+  ;; Correct emms-player-list
+  (setq emms-player-list '(emms-player-vlc
+                           emms-player-vlc-playlist))
 
   ;; Remove playing time from mode line.
   (emms-playing-time-disable-display)
@@ -792,7 +827,10 @@ Smartparens is a minor mode for dealing with pairs in Emacs.
 #+name: smartparens
 #+begin_src emacs-lisp
 (use-package smartparens
-  :hook (prog-mode . smartparens-mode))
+  :hook ((org-mode  . smartparens-mode)
+         (prog-mode . smartparens-mode))
+  :config
+  (show-smartparens-global-mode +1))
 #+end_src
 
 *** Projectile
@@ -837,20 +875,6 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
   :bind ("C-c d" . dash-at-point))
 #+end_src
 
-*** aggressive-indent
-
-https://github.com/Malabarba/aggressive-indent-mode
-
-aggressive-indent-mode is a minor mode that keeps your code always indented.
-It reindents after every change, making it more reliable than electric-indent-mode.
-
-#+name: aggressive-indent
-#+begin_src emacs-lisp
-(use-package aggressive-indent
-  :hook ((emacs-lisp-mode . aggressive-indent-mode)
-         (clojure-mode . aggressive-indent-mode)))
-#+end_src
-
 *** doc-view
 
 #+name: doc-view
@@ -863,6 +887,21 @@ It reindents after every change, making it more reliable than electric-indent-mo
               ("<left>"  . doc-view-previous-page))
   :custom
   (doc-view-resolution 300))
+#+end_src
+
+*** avy
+
+https://github.com/abo-abo/avy
+
+avy is a GNU Emacs package for jumping to visible text using
+a char-based decision tree. See also ace-jump-mode and
+vim-easymotion - avy uses the same idea.
+
+#+name: avy
+#+begin_src emacs-lisp
+(use-package avy
+  ;; :hook (after-init . avy-mode)
+  :bind ("C-:" . avy-goto-word-1))
 #+end_src
 
 ** Block 4 - languages
@@ -974,7 +1013,7 @@ lookup, running tests and so on.
 #+name: cider
 #+begin_src emacs-lisp
 (use-package cider
-  :defer t
+  :defer 1
   ;; :commands (cider-jack-in
   ;;            cider-jack-in-clj
   ;;            cider-jack-in-cljs
@@ -1156,7 +1195,10 @@ a couple of mnemonic key presses.
 (use-package flycheck
   :hook (after-init . global-flycheck-mode)
   :config
-  (use-package flycheck-pos-tip))
+  (use-package flycheck-pos-tip)
+  (use-package flycheck-plantuml
+    :config
+    (flycheck-plantuml-setup)))
 #+end_src
 
 ** Block 7 - functions
@@ -1209,6 +1251,7 @@ a couple of mnemonic key presses.
 <<speed-up>>
 <<package>>
 
+
 ;; Block 1 - main view & preferences for it
 
 <<use-package>>
@@ -1227,9 +1270,9 @@ a couple of mnemonic key presses.
 <<org>>
 <<org-agenda>>
 
+
 ;; Block 3 - other packages & preferences
 
-<<paren>>
 <<rainbow-delimiters>>
 <<restart-emacs>>
 <<treemacs>>
@@ -1251,8 +1294,8 @@ a couple of mnemonic key presses.
 <<projectile>>
 <<org-redmine>>
 <<dash-at-point>>
-<<aggressive-indent>>
 <<doc-view>>
+<<avy>>
 
 
 ;; Block 4 - languages
