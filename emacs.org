@@ -272,6 +272,10 @@ It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
             ;; I never want whitespace at the end of lines. Remove it on save.
             (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
+            ;; Change simple isearch to regexp
+            (bind-key "C-s" 'isearch-forward-regexp)
+            (bind-key "C-r" 'isearch-backward-regexp)
+
             ;; Kill process buffer without confirmation
             (setq kill-buffer-query-functions nil)))
 
@@ -929,6 +933,19 @@ vim-easymotion - avy uses the same idea.
   :bind ("C-:" . avy-goto-word-1))
 #+end_src
 
+*** deadgrep
+
+https://github.com/Wilfred/deadgrep
+
+Deadgrep is the fast, beautiful text search that your Emacs deserves.
+
+#+name: deadgrep
+#+begin_src emacs-lisp
+(use-package deadgrep
+  ;; :hook (after-init . avy-mode)
+  :bind ("C-M-s" . deadgrep))
+#+end_src
+
 ** Block 4 - languages
 *** Elisp
 **** highlight-defined
@@ -1336,7 +1353,7 @@ a couple of mnemonic key presses.
 <<dash-at-point>>
 <<doc-view>>
 <<avy>>
-
+<<deadgrep>>
 
 ;; Block 4 - languages
 
