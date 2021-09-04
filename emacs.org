@@ -157,7 +157,7 @@ This stops emacs adding customised settings to init.el.
 (add-hook 'after-init-hook
           (lambda ()
             ;; Set default font
-            (set-frame-font "Fira Code 13" nil t)
+            (set-frame-font "Iosevka 14" nil t)
 
             ;; Skip startup screen
             (setq inhibit-startup-screen t)
@@ -184,7 +184,6 @@ This stops emacs adding customised settings to init.el.
             (set-terminal-coding-system 'utf-8)
             (set-keyboard-coding-system 'utf-8)
 
-
             ;; (setq menu-bar-mode t)
             ))
 #+end_src
@@ -200,6 +199,7 @@ It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
 #+begin_src emacs-lisp
 (use-package doom-modeline
   :hook (after-init . doom-modeline-mode)
+
   :custom-face
   (mode-line ((t (:height 0.90)))))
 #+end_src
@@ -301,6 +301,7 @@ This package is a direct descendant of ‘org-bullets’, with most of the code 
 #+begin_src emacs-lisp
 (use-package org-superstar
   :hook (org-mode . org-superstar-mode)
+
   :custom
   (org-superstar-headline-bullets-list  '("◉" "▸")))
 #+end_src
@@ -381,6 +382,7 @@ integrating with Org-Babel.
   :mode ("\\.org\\'" . org-mode)
 
   :bind (("C-1" . save-buffer)
+
          :map org-mode-map
          ("C-2" . org-ctrl-c-ctrl-c)
          ("C-c C-z" . slime-switch-to-output-buffer)
@@ -465,7 +467,9 @@ integrating with Org-Babel.
 #+begin_src emacs-lisp
 (use-package org-agenda
   :ensure nil
+
   :bind ("M-4" . org-agenda)
+
   :config
   (load-file "~/.emacs.d/agenda-files.el"))
 #+end_src
@@ -495,6 +499,7 @@ This is a simple package to restart Emacs for within Emacs.
 #+begin_src emacs-lisp
 (use-package restart-emacs
   :commands restart-emacs
+
   :bind ("C-x C-c". nil))
 #+end_src
 
@@ -508,8 +513,10 @@ Treemacs - a tree layout file explorer for Emacs
 #+begin_src emacs-lisp
 (use-package treemacs
   :bind ("M-1" . treemacs)
+
   :custom
   (doom-themes-treemacs-theme "doom-colors")
+
   :config
   (doom-themes-treemacs-config))
 #+end_src
@@ -524,6 +531,7 @@ Emacs-libvterm (vterm) is fully-fledged terminal emulator inside GNU Emacs based
 #+begin_src emacs-lisp
 (use-package vterm
   :bind ("M-3" . vterm)
+
   :custom
   (vterm-always-compile-module t))
 #+end_src
@@ -539,6 +547,7 @@ famous Writeroom editor for OS X. writeroom-mode is meant for GNU Emacs 24, lowe
 #+begin_src emacs-lisp
 (use-package writeroom-mode
   :bind (("M-2" . writeroom-mode)
+
          :map writeroom-mode-map
          ("C-," . writeroom-decrease-width)
          ("C-." . writeroom-increase-width)
@@ -555,9 +564,12 @@ Windmove is a library built into GnuEmacs starting with version 21. It lets you 
 #+begin_src emacs-lisp
 (use-package windmove
   :ensure nil
+
   :defer 1
+
   :custom
   (windmove-wrap-around t)
+
   :config
   ;; use shift + arrow keys to switch between visible buffers
   (windmove-default-keybindings 'super))
@@ -578,6 +590,7 @@ This package allows to translate the strings using Google Translate service dire
            ("M-0" . google-translate-at-point-reverse))
     :init
     (advice-add 'google-translate--search-tkk :override #'google-translate--search-tkk-new)
+
     :custom
     (google-translate-backend-method 'curl)
     (google-translate-default-source-language "en")
@@ -594,6 +607,7 @@ which-key is a minor mode for Emacs that displays the key bindings following you
 #+begin_src emacs-lisp
 (use-package which-key
 	:hook (after-init . which-key-mode)
+
 	:custom
 	(which-key-idle-delay 3.0)
 	(which-key-idle-secondary-delay 0.1))
@@ -668,6 +682,7 @@ Benchmark Emacs Startup time without ever leaving your Emacs.
 #+begin_src emacs-lisp
 (use-package esup
   :commands esup
+
   :custom
   (esup-depth 0))
 #+end_src
@@ -752,6 +767,7 @@ replacing Helm, Ivy, and Ido.
 
   :config
   (use-package selectrum-prescient
+
     :config
     (selectrum-prescient-mode +1)
     (prescient-persist-mode +1)))
@@ -796,6 +812,7 @@ and display completion candidates.
   :config
   (use-package company-box
     :hook (company-mode . company-box-mode)
+
     :custom
     (company-box-show-single-candidate t)
     (company-box-backends-colors nil)
@@ -809,12 +826,16 @@ and display completion candidates.
 #+begin_src emacs-lisp
 (use-package epa
   :after (epg)
+
   :init
   (setq epa-file-cache-passphrase-for-symmetric-encryption t)
+
   :config
   (epa-file-enable)
+
   :custom
   (epa-pinentry-mode 'loopback)
+
   :pin melpa)
 #+end_src
 
@@ -829,6 +850,7 @@ Smartparens is a minor mode for dealing with pairs in Emacs.
 (use-package smartparens
   :hook ((org-mode  . smartparens-mode)
          (prog-mode . smartparens-mode))
+
   :config
   (show-smartparens-global-mode +1))
 #+end_src
@@ -881,10 +903,13 @@ Dash is an API Documentation Browser and Code Snippet Manager. dash-at-point mak
 #+begin_src emacs-lisp
 (use-package doc-view
   :ensure nil
+
   :commands doc-view-mode
+
   :bind (:map doc-view-mode-map
               ("<right>" . doc-view-next-page)
               ("<left>"  . doc-view-previous-page))
+
   :custom
   (doc-view-resolution 300))
 #+end_src
@@ -920,6 +945,7 @@ face and variable names.
 #+begin_src emacs-lisp
 (use-package highlight-defined
   :hook (emacs-lisp-mode . highlight-defined-mode)
+
   :custom-face
   (highlight-defined-variable-name-face ((t (:inherit 'font-lock-variable-name-face
                                              :foreground "RosyBrown3"))))
@@ -927,6 +953,7 @@ face and variable names.
                                              :foreground "wheat3"))))
   (highlight-defined-builtin-function-name-face ((t (:inherit 'highlight-defined-function-name-face
                                                      :foreground "RosyBrown1"))))
+
   :custom
   (highlight-defined-face-use-itself nil))
 #+end_src
@@ -939,7 +966,9 @@ Emacs lisp mode
 #+begin_src emacs-lisp :noweb yes
 (use-package elisp-mode
   :ensure nil
+
   :defines flycheck-disabled-checkers
+
   :hook (emacs-lisp-mode . (lambda ()
                              "Disable the checkdoc checker."
                              (interactive)
@@ -954,8 +983,10 @@ Emacs lisp mode
 #+begin_src emacs-lisp
 (use-package slime
   :bind ("M-)" . slime-close-all-parens-in-sexp)
+
   :init
   (setq inferior-lisp-program "/usr/local/bin/sbcl --noinform")
+
   :config
   (load (expand-file-name "~/quicklisp/slime-helper.el")))
 #+end_src
@@ -1060,6 +1091,7 @@ indentation, navigation and refactoring support for the Clojure(Script) programm
   :mode (("\\.\\(clj\\|dtm\\|edn\\)\\'" . clojure-mode)
          ("\\.cljc\\'" . clojurec-mode)
          ("\\.cljs\\'" . clojurescript-mode))
+
   :config
   (require 'flycheck-clj-kondo))
 
@@ -1084,18 +1116,20 @@ Major mode for editing SCSS files in Emacs.
 #+begin_src emacs-lisp
 (use-package dart-mode
   :defer 1
+
   :custom
   (lsp-dart-sdk-dir "~/development/flutter/bin/cache/dart-sdk/")
   (dart-sdk-path "~/development/flutter/bin/cache/dart-sdk/"))
 
 (use-package flutter
   :after dart-mode
+
   :custom
   (flutter-sdk-path "~/development/flutter/"))
 
 (use-package lsp-dart
-  :hook
-  (dart-mode . lsp)
+  :hook (dart-mode . lsp)
+
   :custom
   (lsp-dart-flutter-sdk-dir "~/development/flutter/")
   (lsp-dart-sdk-dir "~/development/flutter/bin/cache/dart-sdk/")
@@ -1124,8 +1158,10 @@ Major mode for editing SCSS files in Emacs.
 
 (use-package prolog
     :requires (quelpa quelpa-use-package)
+
     :quelpa
     (prolog :version original :fetcher file :path "~/.emacs.d/prolog.el")
+
     :custom
     (prolog-system 'swi)  ;; ob-prolog for swi only
     (prolog-program-switches '((swi ("-G128M" "-T128M" "-L128M" "-O"))
@@ -1136,7 +1172,9 @@ Major mode for editing SCSS files in Emacs.
 
 (use-package ediprolog
     :ensure nil
+
     :bind ([f10] . ediprolog-dwim)
+
     :custom
     (ediprolog-system 'swi))
 #+end_src
@@ -1184,6 +1222,7 @@ a couple of mnemonic key presses.
 #+begin_src emacs-lisp
 (use-package magit
   :defer 1
+
   :bind ("C-5" . magit-status))
 #+end_src
 
@@ -1194,6 +1233,7 @@ a couple of mnemonic key presses.
 #+begin_src emacs-lisp
 (use-package flycheck
   :hook (after-init . global-flycheck-mode)
+
   :config
   (use-package flycheck-pos-tip)
   (use-package flycheck-plantuml
