@@ -478,6 +478,19 @@ integrating with Org-Babel.
   (load-file "~/.emacs.d/agenda-files.el"))
 #+end_src
 
+**** org-hugo
+
+https://github.com/kaushalmodi/ox-hugo
+
+ox-hugo is an Org exporter backend that exports Org to Hugo-compatible Markdown
+(Blackfriday) and also generates the front-matter (in TOML or YAML format).
+
+#+name: org-hugo
+#+begin_src emacs-lisp
+(use-package ox-hugo
+  :after ox)
+#+end_src
+
 ** Block 3 - other packages & preferences
 *** rainbow-delimiters
 
@@ -1326,6 +1339,7 @@ a couple of mnemonic key presses.
 
 <<org>>
 <<org-agenda>>
+<<org-hugo>>
 
 
 ;; Block 3 - other packages & preferences
