@@ -112,7 +112,8 @@ but will work fine anywhere else.
   (doom-themes-treemacs-theme "doom-colors")
 
   :config
-  (load-theme 'doom-one t)
+  ;; (load-theme 'doom-one t)
+  (load-theme 'doom-vibrant t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -201,7 +202,8 @@ It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
   :hook (after-init . doom-modeline-mode)
 
   :custom-face
-  (mode-line ((t (:height 0.90)))))
+  (mode-line ((t (:height 0.9))))
+  (mode-line-inactive ((t (:height 0.9)))))
 #+end_src
 
 *** menu
@@ -224,6 +226,10 @@ It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
 #+begin_src emacs-lisp
 (setenv "PATH" my-env-path)
 (setenv "MANPATH" my-env-manpath)
+
+;; native compilation
+(setq comp-speed 3)
+(setq comp-deferred-compilation t)
 
 (add-hook 'after-init-hook
           (lambda ()
@@ -266,8 +272,8 @@ It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
             (defalias 'yes-or-no-p 'y-or-n-p)
 
             ;; auto-revert-mode
-            (add-hook 'prog-mode-hook 'auto-revert-mode)
-            (add-hook 'text-mode-hook 'auto-revert-mode)
+            ;; (add-hook 'prog-mode-hook 'auto-revert-mode)
+            ;; (add-hook 'text-mode-hook 'auto-revert-mode)
 
             ;; I never want whitespace at the end of lines. Remove it on save.
             (add-hook 'before-save-hook 'delete-trailing-whitespace)
@@ -566,8 +572,8 @@ famous Writeroom editor for OS X. writeroom-mode is meant for GNU Emacs 24, lowe
   :bind (("M-2" . writeroom-mode)
 
          :map writeroom-mode-map
-         ("C-," . writeroom-decrease-width)
-         ("C-." . writeroom-increase-width)
+         ("C-,"   . writeroom-decrease-width)
+         ("C-."   . writeroom-increase-width)
          ("C-M-=" . writeroom-adjust-width)))
 #+end_src
 
@@ -718,17 +724,14 @@ but it tries to be more general and cleaner. It is comparable to Bongo.
 (use-package emms
   :commands (emms emms-streams emms-playlist-new)
 
-  :bind (("M-5" . emms-previous)
-         ("C-6" . (lambda ()
+  :bind (("C-6" . (lambda ()
+                    (interactive)
+                    (emms-play-directory my-emms-directory-music)))
+         ("M-5" . emms-previous)
+         ("M-6" . (lambda ()
                       (interactive)
                       (emms-playlist-new "Radios")
-                      ;; (emms-playlist-set-playlist-buffer)
                       (emms-play-playlist "~/.emacs.d/radios.emms")))
-         ("M-6" . (lambda ()
-                    (interactive)
-                    ;; (emms-play-streamlist "")
-                    (emms-play-directory my-emms-directory-music)
-                    ))
          ("M-7" . emms-stop)
          ("M-8" . emms-next))
 
@@ -865,11 +868,10 @@ Smartparens is a minor mode for dealing with pairs in Emacs.
 #+name: smartparens
 #+begin_src emacs-lisp
 (use-package smartparens
-  :hook ((org-mode  . smartparens-mode)
-         (prog-mode . smartparens-mode))
+  :hook ((prog-mode org-mode) . smartparens-mode)
 
   :config
-  (show-smartparens-global-mode +1))
+  (show-smartparens-global-mode t))
 #+end_src
 
 *** Projectile
@@ -1054,8 +1056,7 @@ This package integrates clj-kondo with Emacs via flycheck.
 
 #+name: flycheck-clj-kondo
 #+begin_src emacs-lisp
-(use-package flycheck-clj-kondo
-  :defer t)
+(use-package flycheck-clj-kondo)
 #+end_src
 
 **** cider
@@ -1115,15 +1116,13 @@ indentation, navigation and refactoring support for the Clojure(Script) programm
 
 #+name: clojure
 #+begin_src emacs-lisp :noweb yes
-<<flycheck-clj-kondo>>
-
 (use-package clojure-mode
   :mode (("\\.\\(clj\\|dtm\\|edn\\)\\'" . clojure-mode)
          ("\\.cljc\\'" . clojurec-mode)
          ("\\.cljs\\'" . clojurescript-mode))
 
   :config
-  (require 'flycheck-clj-kondo))
+  <<flycheck-clj-kondo>>)
 
 <<cider>>
 #+end_src
