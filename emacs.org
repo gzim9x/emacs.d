@@ -109,35 +109,12 @@ but will work fine anywhere else.
   :custom
   (doom-themes-enable-bold nil) ; if nil, bold is universally disabled
   (doom-themes-enable-italic nil) ; if nil, italics is universally disabled
-  (doom-themes-treemacs-theme "doom-colors")
 
   :config
-  ;; (load-theme 'doom-one t)
   (load-theme 'doom-vibrant t)
 
   ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-
-  ;; Fonts
-  (setq fonts ["JetBrains Mono"
-               "Monitorica"
-               "Aldrich [RUS by Daymarius]"
-               "Gardens CM"
-               "Jet Set"
-               "arial curive"
-               "Hack"
-               "Azbuka04"
-               "Comic Helvetic"
-               "Oxygen"
-               "Product Sans(RUS BY LYAJKA)"
-               "Ropa Sans [RUS by Daymarius]"
-               "Trebuchet"
-               "Arial"
-               "Verdana"
-               "Tahoma"
-               "Monaco"
-               "PT Mono"
-               "Fira Code"]))
+  (doom-themes-visual-bell-config))
 #+end_src
 
 *** customize
@@ -148,7 +125,7 @@ This stops emacs adding customised settings to init.el.
 #+begin_src emacs-lisp
 (setq custom-file "~/.emacs.d/customize.el")
 (when (file-readable-p custom-file)
-    (load custom-file))
+  (load custom-file))
 #+end_src
 
 *** ui-settings
@@ -185,7 +162,6 @@ This stops emacs adding customised settings to init.el.
             (set-terminal-coding-system 'utf-8)
             (set-keyboard-coding-system 'utf-8)
 
-            ;; (setq menu-bar-mode t)
             ))
 #+end_src
 
@@ -441,8 +417,13 @@ integrating with Org-Babel.
   (org-property-value ((t (:foreground "LightPink2"))))
   (org-meta-line ((t (:foreground "LightSalmon2"))))
   (org-block-begin-line ((t (:inherit 'org-block
-                             :foreground "DarkOrange4"
+                             :foreground "grey32"
+                             :overline t
                              :extend t))))
+  (org-block-end-line ((t (:inherit 'org-block
+                           :foreground "grey32"
+                           :underline t
+                           :extend t))))
 
   :config
   ;; Corrects (and improves) org-mode's native fontification.
@@ -458,17 +439,16 @@ integrating with Org-Babel.
                                  (python . t)
                                  ;; (prolog .t)
                                  ;; (perl . t)
-      				 ;; (raku . t)
-      				 ;; (dart . t)
-      				 ;; (php . t)
+      			         ;; (raku . t)
+      			         ;; (dart . t)
+      			         ;; (php . t)
                                  (ledger . t)
                                  (plantuml . t)
                                  (http . t)))
   <<org-superstar>>
   <<ob-async>>
   <<ob-http>>
-  <<plantuml>>
-  )
+  <<plantuml>>)
 #+end_src
 
 **** org-agenda
@@ -498,6 +478,15 @@ ox-hugo is an Org exporter backend that exports Org to Hugo-compatible Markdown
 #+end_src
 
 ** Block 3 - other packages & preferences
+*** delsel
+
+#+name: delsel
+#+begin_src emacs-lisp
+(use-package delsel
+  :ensure nil
+  :config (delete-selection-mode +1))
+#+end_src
+
 *** rainbow-delimiters
 
 https://github.com/Fanael/rainbow-delimiters
@@ -537,12 +526,21 @@ Treemacs - a tree layout file explorer for Emacs
 (use-package treemacs
   :bind ("M-1" . treemacs)
 
-  :custom
-  (doom-themes-treemacs-theme "doom-colors")
+  :custom-face
+  (treemacs-file-face ((t (:inherit dafault
+                           :font "Iosevka"
+                           :height 120))))
+  (treemacs-root-face ((t (:inherit font-lock-constant-face
+                           :font "Iosevka"
+                           :height 150))))
 
   :config
+  (setq doom-themes-treemacs-theme "doom-colors")
   (doom-themes-treemacs-config))
 #+end_src
+
+#+RESULTS: treemacs
+: #s(hash-table size 65 test eql rehash-size 1.5 rehash-threshold 0.8125 data (:use-package (24890 24571 720569 0) :init (24890 24571 720530 0) :init-secs (0 0 275 0) :use-package-secs (0 0 399 0) :config (24890 24571 720505 0) :config-secs (0 0 245 0)))
 
 *** vterm
 
@@ -961,6 +959,18 @@ Deadgrep is the fast, beautiful text search that your Emacs deserves.
   :bind ("C-M-s" . deadgrep))
 #+end_src
 
+*** elfeed
+
+#+name: elfeed
+#+begin_src emacs-lisp
+(use-package elfeed
+  :commands elfeed
+  :bind ("C-x w" . elfeed)
+  :config
+  (my-set-elfeed-entries)
+  (my-set-elfeed-feeds))
+#+end_src
+
 ** Block 4 - languages
 *** Elisp
 **** highlight-defined
@@ -1343,6 +1353,7 @@ a couple of mnemonic key presses.
 
 ;; Block 3 - other packages & preferences
 
+<<delsel>>
 <<rainbow-delimiters>>
 <<restart-emacs>>
 <<treemacs>>
@@ -1367,6 +1378,8 @@ a couple of mnemonic key presses.
 <<doc-view>>
 <<avy>>
 <<deadgrep>>
+<<elfeed>>
+
 
 ;; Block 4 - languages
 
