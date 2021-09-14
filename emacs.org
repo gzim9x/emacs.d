@@ -1,4 +1,5 @@
 * README.md
+
 [[file:README.md][README.md]]
 
 * Blocks
@@ -868,6 +869,39 @@ Smartparens is a minor mode for dealing with pairs in Emacs.
 (use-package smartparens
   :hook ((prog-mode org-mode) . smartparens-mode)
 
+  ;; bindings keys scheme https://ebzzry.com/en/emacs-pairs/
+  :bind (:map smartparens-mode-map
+         ;; Starts and ends
+         ("C-M-a" . sp-beginning-of-sexp)
+         ("C-M-e" . sp-end-of-sexp)
+
+         ;; Traversing lists
+         ("C-<down>" . sp-down-sexp)
+         ("C-<up>" . sp-up-sexp)
+         ("M-<down>" . sp-backward-down-sexp)
+         ("M-<up>" . sp-backward-up-sexp)
+
+         ;; Block movements
+         ("C-M-f" . sp-forward-sexp)
+         ("C-M-b" . sp-backward-sexp)
+
+         ;; Top-level-ish traversal
+         ("C-M-n" . sp-next-sexp)
+         ("C-M-p" . sp-previous-sexp)
+
+         ;; Free-form movements
+         ;; ("C-S-b" . sp-backward-symbol)
+         ;; ("C-S-f" . sp-forward-symbol)
+
+         ;; Wrapping
+         ("C-c (" . (lambda (_) (interactive "P") (sp-wrap-with-pair "(")))
+         ("C-c [" . (lambda (_) (interactive "P") (sp-wrap-with-pair "[")))
+         ("C-c {" . (lambda (_) (interactive "P") (sp-wrap-with-pair "{")))
+
+         ;; Unwrapping
+         ("M-[" . sp-backward-unwrap-sexp)
+         ("M-]" . sp-unwrap-sexp))
+
   :config
   (show-smartparens-global-mode t))
 #+end_src
@@ -959,16 +993,44 @@ Deadgrep is the fast, beautiful text search that your Emacs deserves.
   :bind ("C-M-s" . deadgrep))
 #+end_src
 
-*** elfeed
+*** Newsticker
 
-#+name: elfeed
+https://www.gnu.org/software/emacs/manual/html_mono/newsticker.html
+
+Newsticker provides a Feed Reader for Emacs. It retrieves headlines from a
+list of news sites, processes them, and provides frontends for reading and
+managing them. (Standard headline formats are RSS and Atom which makes
+Newsticker an “RSS Reader”, “Atom Reader” or “Feed Aggregator”.)
+
+#+name: newsticker
 #+begin_src emacs-lisp
-(use-package elfeed
-  :commands elfeed
-  :bind ("C-x w" . elfeed)
-  :config
-  (my-set-elfeed-entries)
-  (my-set-elfeed-feeds))
+(use-package newsticker
+  :ensure nil
+
+  :custom-face
+  (newsticker-treeview-face ((t (:weight normal))))
+  (newsticker-treeview-new-face ((t (:inherit 'newsticker-treeview-face
+                                     ;; :weight normal
+                                     :foreground "plum2"))))
+  (newsticker-treeview-old-face ((t (:inherit 'newsticker-treeview-face
+                                     ;; :weight normal
+                                     :foreground "RosyBrown3"))))
+  ;; newsticker-treeview-new-face
+
+  :custom
+  (newsticker-url-list my-newsticker-url-list))
+#+end_src
+
+*** Hydra
+
+https://github.com/abo-abo/hydra
+
+This is a package for GNU Emacs that can be used to tie related commands
+into a family of short bindings with a common prefix - a Hydra.
+
+#+name: hydra
+#+begin_src emacs-lisp
+(use-package hydra)
 #+end_src
 
 ** Block 4 - languages
@@ -1378,7 +1440,8 @@ a couple of mnemonic key presses.
 <<doc-view>>
 <<avy>>
 <<deadgrep>>
-<<elfeed>>
+<<newsticker>>
+<<hydra>>
 
 
 ;; Block 4 - languages
