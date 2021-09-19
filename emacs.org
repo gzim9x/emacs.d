@@ -179,8 +179,8 @@ It's integrated into Centaur Emacs, Doom Emacs and Spacemacs.
   :hook (after-init . doom-modeline-mode)
 
   :custom-face
-  (mode-line ((t (:height 0.9))))
-  (mode-line-inactive ((t (:height 0.9)))))
+  (mode-line ((t (:height 0.9 :background "gray8"))))
+  (mode-line-inactive ((t (:height 0.9 :background "gray12")))))
 #+end_src
 
 *** menu
@@ -597,28 +597,6 @@ Windmove is a library built into GnuEmacs starting with version 21. It lets you 
   (windmove-default-keybindings 'super))
 #+end_src
 
-*** google-translate
-
-[[https://github.com/atykhonov/google-translate][https://github.com/atykhonov/google-translate]]
-
-This package allows to translate the strings using Google Translate service directly from GNU Emacs.
-
-#+name: google-translate
-#+begin_src emacs-lisp
-(defun google-translate--search-tkk-new () "Search TKK." (list 430675 2721866130))
-
-(use-package google-translate
-    :bind (("M-9" . google-translate-at-point)
-           ("M-0" . google-translate-at-point-reverse))
-    :init
-    (advice-add 'google-translate--search-tkk :override #'google-translate--search-tkk-new)
-
-    :custom
-    (google-translate-backend-method 'curl)
-    (google-translate-default-source-language "en")
-    (google-translate-default-target-language "ru"))
-#+end_src
-
 *** which-key
 
 [[https://github.com/justbur/emacs-which-key][https://github.com/justbur/emacs-which-key]]
@@ -692,21 +670,6 @@ YASnippet is a template system for Emacs. It allows you to type an abbreviation 
   :config
   (use-package yasnippet-snippets)
   (yas-reload-all))
-#+end_src
-
-*** ESUP - Emacs Start Up Profiler
-
-https://github.com/jschaf/esup
-
-Benchmark Emacs Startup time without ever leaving your Emacs.
-
-#+name: esup
-#+begin_src emacs-lisp
-(use-package esup
-  :commands esup
-
-  :custom
-  (esup-depth 0))
 #+end_src
 
 *** Emms - Emacs Multi-Media System
@@ -878,8 +841,8 @@ Smartparens is a minor mode for dealing with pairs in Emacs.
          ;; Traversing lists
          ("C-<down>" . sp-down-sexp)
          ("C-<up>" . sp-up-sexp)
-         ("M-<down>" . sp-backward-down-sexp)
-         ("M-<up>" . sp-backward-up-sexp)
+         ;; ("M-<down>" . sp-backward-down-sexp)
+         ;; ("M-<up>" . sp-backward-up-sexp)
 
          ;; Block movements
          ("C-M-f" . sp-forward-sexp)
@@ -1031,6 +994,104 @@ into a family of short bindings with a common prefix - a Hydra.
 #+name: hydra
 #+begin_src emacs-lisp
 (use-package hydra)
+#+end_src
+
+*** google-translate
+
+[[https://github.com/atykhonov/google-translate][https://github.com/atykhonov/google-translate]]
+
+This package allows to translate the strings using Google Translate service
+directly from GNU Emacs.
+
+#+name: google-translate
+#+begin_src emacs-lisp
+(use-package popup)
+
+(defun google-translate--search-tkk-new () "Search TKK." (list 430675 2721866130))
+
+(use-package google-translate
+  :bind (("M-9" . google-translate-at-point)
+         ("M-0" . google-translate-at-point-reverse))
+
+  :init
+  (advice-add 'google-translate--search-tkk :override #'google-translate--search-tkk-new)
+
+  :custom
+  (google-translate-default-source-language "en")
+  (google-translate-default-target-language "ru")
+
+  :after popup)
+#+end_src
+
+*** ESUP - Emacs Start Up Profiler
+
+https://github.com/jschaf/esup
+
+Benchmark Emacs Startup time without ever leaving your Emacs.
+
+#+name: esup
+#+begin_src emacs-lisp
+(use-package esup
+  :commands esup
+
+  :custom
+  (esup-depth 0))
+#+end_src
+
+*** Gnus
+
+The Gnus Newsreader
+
+https://www.gnu.org/software/emacs/manual/html_node/gnus/
+
+**** all-the-icons-gnus
+
+https://github.com/nlamirault/all-the-icons-gnus
+
+#+name: all-the-icons-gnus
+#+begin_src emacs-lisp
+(use-package all-the-icons-gnus
+  :defer 1
+  :after all-the-icons
+  :config
+  (all-the-icons-gnus-setup))
+#+end_src
+
+**** gnus-select-account
+
+https://github.com/tumashu/gnus-select-account
+
+gnus-select-account let user select an account before write a email in gnus.
+
+#+name: gnus-select-account
+#+begin_src emacs-lisp
+(use-package gnus-select-account
+  :defer 1
+  :config
+  (gnus-select-account-enable))
+#+end_src
+
+**** gnus
+
+#+name: gnus
+#+begin_src emacs-lisp :noweb yes
+<<all-the-icons-gnus>>
+
+<<gnus-select-account>>
+
+(use-package gnus
+  :ensure nil
+
+  :commands gnus
+
+  :after (all-the-icons-gnus gnus-select-account)
+
+  :config
+  (setq gnus-select-method '(nnnil ""))
+  (setq message-directory  "~/.emacs.d/mail/")
+  (setq gnus-directory     "~/.emacs.d/news/")
+  (setq nnfolder-directory "~/.emacs.d/mail/archive/")
+  (my-config-gnus))
 #+end_src
 
 ** Block 4 - languages
@@ -1422,12 +1483,10 @@ a couple of mnemonic key presses.
 <<vterm>>
 <<writeroom>>
 <<windmove>>
-<<google-translate>>
 <<which-key>>
 <<crux>>
 <<expand-region>>
 <<yasnippet>>
-<<esup>>
 <<emms>>
 <<all-the-icons>>
 <<selectrum>>
@@ -1441,7 +1500,10 @@ a couple of mnemonic key presses.
 <<avy>>
 <<deadgrep>>
 <<newsticker>>
+<<google-translate>>
 <<hydra>>
+<<esup>>
+<<gnus>>
 
 
 ;; Block 4 - languages
